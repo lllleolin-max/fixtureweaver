@@ -1,0 +1,15 @@
+{
+  "revision": "41e1c6c077f9eeea8da481133d0955beae47bb7a",
+  "probe": "probes/protected_affinity_probe.py",
+  "probe_sha256": "2f464871c8c89f1e58395d0a18a71e6bf110f5d4ee554239823cb55060913548",
+  "wheel_sha256": "635570f84395ae12be5f554e6759bb6527820173944dcdceef59f468aea5c9a4",
+  "archive_installed_source_bytes_equal": true,
+  "source_file_sha256": {
+    "cli.py": "ef265161c59f95a0944ddb8164303a18ec836ee470cb46e280fb5d01f249bb3b",
+    "engine.py": "ae764038261e60cd802b4d4bf4ba83b568d16c059775fd826a9a59013d37f403",
+    "__init__.py": "bb56833ea35274affe16d70a7db18ffac6e986957ea021cd3eadd672a3dd9b79"
+  },
+  "probe_exit": 1,
+  "probe_stdout": "{\"probe\": \"protected_affinity\", \"passed\": false, \"error\": {\"code\": \"PROTECTED_CONFLICT\", \"message\": \"Protected identifier cannot be represented in every linked column\", \"witness\": {\"class_name\": \"parent\", \"columns\": [[\"c\", \"p\"]]}}}",
+  "probe_stderr": ""
+}

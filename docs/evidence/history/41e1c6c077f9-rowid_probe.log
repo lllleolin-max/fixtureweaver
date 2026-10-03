@@ -1,0 +1,39 @@
+$ <history-temp>\env\Scripts\python.exe -m pip wheel <history-temp>\source --no-deps --wheel-dir <history-temp>\wheels
+Processing <user>\appdata\local\temp\fixtureweaver-history-34wuq1a_\source
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: fixtureweaver
+  Building wheel for fixtureweaver (pyproject.toml): started
+  Building wheel for fixtureweaver (pyproject.toml): finished with status 'done'
+  Created wheel for fixtureweaver: filename=fixtureweaver-0.1.0-py3-none-any.whl size=12203 sha256=9bd6d2c1e40a492c752133e98c31dcb5cb10d2632d0c87b5bd2d399d672e9a28
+  Stored in directory: <user>\AppData\Local\Temp\pip-ephem-wheel-cache-k9fcfkaw\wheels\19\14\eb\b99925bf6b7fb04df42f3363bd921343b0944718c95ffc40fe
+Successfully built fixtureweaver
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: <history-temp>\env\Scripts\python.exe -m pip install --upgrade pip
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe -m pip install --no-deps <history-temp>\wheels\fixtureweaver-0.1.0-py3-none-any.whl
+Processing <user>\appdata\local\temp\fixtureweaver-history-34wuq1a_\wheels\fixtureweaver-0.1.0-py3-none-any.whl
+Installing collected packages: fixtureweaver
+Successfully installed fixtureweaver-0.1.0
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: <history-temp>\env\Scripts\python.exe -m pip install --upgrade pip
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe -c import fixtureweaver,pathlib,json,hashlib; p=pathlib.Path(fixtureweaver.__file__).parent; print(json.dumps({f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(p.glob('*.py'))}))
+{"__init__.py": "bb56833ea35274affe16d70a7db18ffac6e986957ea021cd3eadd672a3dd9b79", "cli.py": "ef265161c59f95a0944ddb8164303a18ec836ee470cb46e280fb5d01f249bb3b", "engine.py": "ae764038261e60cd802b4d4bf4ba83b568d16c059775fd826a9a59013d37f403"}
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe <repo>\probes\rowid_probe.py
+{"probe": "rowid_consumer", "passed": true, "result": [[42, "retained"]]}
+
+exit=0

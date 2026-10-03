@@ -311,6 +311,7 @@ def _masks(db, tables, keys, retained, classes, protect, salt, limits):
         groups = defaultdict(list)
         for cell in cells:
             groups[dsu.find(cell)].append(cell)
+        pinned_groups = 0
         for members in groups.values():
             members.sort(key=lambda c: (c[0], repr(c[1]), c[2]))
             values = [cells[c] for c in members]
@@ -318,24 +319,22 @@ def _masks(db, tables, keys, retained, classes, protect, salt, limits):
             if bytes in storage and len(storage) != 1:
                 raise FixtureError("MASK_TYPE", "A linked class mixes BLOB and scalar identifiers; separate or normalize the schema", class_name=name)
             fixed = [c for c in members if c in protected]
+            pinned_groups += bool(fixed)
             identity = min(encoded(v) for v in values)
             digest = hmac.new(salt.encode("utf-8"), (name + "\0" + identity).encode("utf-8"), hashlib.sha256).digest()
             token = 100000 + int.from_bytes(digest[:6], "big")
             numeric = bool(storage & {int, float})
-            canonical = cells[fixed[0]] if fixed else None
             for cell in members:
                 old = cells[cell]
-                if cell in protected:
+                if fixed:
+                    # Protection pins the entire SQLite equivalence class. Keep each
+                    # original storage representation: Python int('1.0') is not SQLite
+                    # INTEGER affinity, and int(1.5) would silently truncate a REAL key.
                     new = old
-                elif fixed:
-                    try:
-                        new = type(old)(canonical)
-                    except (ValueError, TypeError, OverflowError) as error:
-                        raise FixtureError("PROTECTED_CONFLICT", "Protected identifier cannot be represented in every linked column", class_name=name, columns=[list(c[::2]) for c in fixed]) from error
                 else:
                     new = _token(old, token, digest, numeric)
                 changes[cell] = new
-        summaries.append({"name": name, "columns": [list(c) for c in sorted(columns)], "occurrences": len(cells), "equivalence_classes": len(groups), "protected_occurrences": sum(c in protected for c in cells)})
+        summaries.append({"name": name, "columns": [list(c) for c in sorted(columns)], "occurrences": len(cells), "equivalence_classes": len(groups), "protected_occurrences": sum(c in protected for c in cells), "pinned_equivalence_classes": pinned_groups})
     return changes, summaries
 
 

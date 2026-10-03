@@ -85,6 +85,11 @@ class FixtureTests(unittest.TestCase):
         report = weave(self.source, self.output, {"seeds": [{"table": "item", "where": "id=9"}], "queries": [{"name": "rowid", "sql": "SELECT rowid,id FROM item", "expect": [[42,9]]}]})
         self.assertEqual(report["retained_rows"], {"item": 1})
 
+    def test_protection_keeps_affinity_representations(self):
+        self.database("CREATE TABLE p(id REAL PRIMARY KEY); CREATE TABLE c(id INTEGER PRIMARY KEY,p TEXT REFERENCES p(id)); INSERT INTO p VALUES(1.5); INSERT INTO c VALUES(7,'1.50');")
+        report = weave(self.source, self.output, {"seeds": [{"table": "c"}], "masks": [{"name": "id", "columns": [["p", "id"]]}], "protect": [{"table": "c", "column": "p"}], "queries": [{"name": "representations", "sql": "SELECT p.id,c.p FROM c JOIN p ON p.id=c.p", "expect": [[1.5,"1.50"]]}]})
+        self.assertEqual(report["masked_classes"][0]["pinned_equivalence_classes"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

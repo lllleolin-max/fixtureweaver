@@ -1,0 +1,15 @@
+{
+  "revision": "41e1c6c077f9eeea8da481133d0955beae47bb7a",
+  "probe": "probes/rowid_probe.py",
+  "probe_sha256": "4a7578e8ba1e5443389a4eb5af5c36292aff34230dd04003c5362e15e3f2dad5",
+  "wheel_sha256": "9bd6d2c1e40a492c752133e98c31dcb5cb10d2632d0c87b5bd2d399d672e9a28",
+  "archive_installed_source_bytes_equal": true,
+  "source_file_sha256": {
+    "cli.py": "ef265161c59f95a0944ddb8164303a18ec836ee470cb46e280fb5d01f249bb3b",
+    "engine.py": "ae764038261e60cd802b4d4bf4ba83b568d16c059775fd826a9a59013d37f403",
+    "__init__.py": "bb56833ea35274affe16d70a7db18ffac6e986957ea021cd3eadd672a3dd9b79"
+  },
+  "probe_exit": 0,
+  "probe_stdout": "{\"probe\": \"rowid_consumer\", \"passed\": true, \"result\": [[42, \"retained\"]]}",
+  "probe_stderr": ""
+}
