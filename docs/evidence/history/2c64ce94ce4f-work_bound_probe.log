@@ -1,0 +1,39 @@
+$ <history-temp>\env\Scripts\python.exe -m pip wheel <history-temp>\source --no-deps --wheel-dir <history-temp>\wheels
+Processing <user>\appdata\local\temp\fixtureweaver-history-y_9r608o\source
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: fixtureweaver
+  Building wheel for fixtureweaver (pyproject.toml): started
+  Building wheel for fixtureweaver (pyproject.toml): finished with status 'done'
+  Created wheel for fixtureweaver: filename=fixtureweaver-0.1.0-py3-none-any.whl size=13138 sha256=d73794cde2da761f18102f85531caa5675078a20f843d8435c814f57a15b667e
+  Stored in directory: <user>\AppData\Local\Temp\pip-ephem-wheel-cache-15lbmobl\wheels\eb\86\2f\4a308155a83dccb439f5e75a89cf1a3092aaa03e426d486b92
+Successfully built fixtureweaver
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: <history-temp>\env\Scripts\python.exe -m pip install --upgrade pip
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe -m pip install --no-deps <history-temp>\wheels\fixtureweaver-0.1.0-py3-none-any.whl
+Processing <user>\appdata\local\temp\fixtureweaver-history-y_9r608o\wheels\fixtureweaver-0.1.0-py3-none-any.whl
+Installing collected packages: fixtureweaver
+Successfully installed fixtureweaver-0.1.0
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: <history-temp>\env\Scripts\python.exe -m pip install --upgrade pip
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe -c import fixtureweaver,pathlib,json,hashlib; p=pathlib.Path(fixtureweaver.__file__).parent; print(json.dumps({f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(p.glob('*.py'))}))
+{"__init__.py": "bb56833ea35274affe16d70a7db18ffac6e986957ea021cd3eadd672a3dd9b79", "cli.py": "7a4b05324844f53776dfac2fef6673fa3438c627147008d6d0808e38ecb3f0f3", "engine.py": "bc7dd8e7ff526a2c74d16a07f7c6a183e2c8b9fe885bebd3b089138ab70973b7"}
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe <repo>\probes\work_bound_probe.py
+{"probe": "cumulative_vm_budget", "passed": true, "error": "WORK_LIMIT", "source_unchanged": true, "no_destination": true}
+
+exit=0

@@ -1,0 +1,15 @@
+{
+  "revision": "2c64ce94ce4f090262d5da84b25c7b55750412e5",
+  "probe": "probes/work_bound_probe.py",
+  "probe_sha256": "56e29fce539663ee3f176f08f660843c22dcfe29526bb76af56928743c4b80bf",
+  "wheel_sha256": "d73794cde2da761f18102f85531caa5675078a20f843d8435c814f57a15b667e",
+  "archive_installed_source_bytes_equal": true,
+  "source_file_sha256": {
+    "cli.py": "7a4b05324844f53776dfac2fef6673fa3438c627147008d6d0808e38ecb3f0f3",
+    "engine.py": "bc7dd8e7ff526a2c74d16a07f7c6a183e2c8b9fe885bebd3b089138ab70973b7",
+    "__init__.py": "bb56833ea35274affe16d70a7db18ffac6e986957ea021cd3eadd672a3dd9b79"
+  },
+  "probe_exit": 0,
+  "probe_stdout": "{\"probe\": \"cumulative_vm_budget\", \"passed\": true, \"error\": \"WORK_LIMIT\", \"source_unchanged\": true, \"no_destination\": true}",
+  "probe_stderr": ""
+}

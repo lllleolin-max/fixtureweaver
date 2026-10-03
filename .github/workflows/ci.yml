@@ -1,0 +1,31 @@
+name: wheels-and-relational-invariants
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.14']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Build an ordinary wheel
+        run: python -m pip wheel . --no-deps --wheel-dir wheelhouse
+      - name: Install the ordinary wheel
+        run: python -c "import glob,subprocess,sys; subprocess.run([sys.executable,'-m','pip','install','--no-deps',glob.glob('wheelhouse/fixtureweaver-*.whl')[0]],check=True)"
+      - name: Full invariant suite against installed package
+        run: python -m unittest discover -s tests -v
+      - name: SDK and actual registered console
+        run: python examples/demo.py
+      - name: Fair synthetic contrast and adverse case
+        run: python examples/contrast.py
+      - name: Immutable regression probes
+        run: python -c "import pathlib,subprocess,sys; [subprocess.run([sys.executable,str(p)],check=True) for p in sorted(pathlib.Path('probes').glob('*_probe.py'))]"

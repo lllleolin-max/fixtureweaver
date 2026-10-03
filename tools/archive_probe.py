@@ -35,7 +35,7 @@ def capture(argv, cwd, log, redactions):
     return result
 
 
-def check_revision(revision, probe, output_directory):
+def check_revision(revision, probe, output_directory, probe_label=None):
     sha = subprocess.check_output(["git", "rev-parse", revision], cwd=ROOT, text=True).strip()
     log = []
     probe = Path(probe).resolve()
@@ -68,7 +68,7 @@ def check_revision(revision, probe, output_directory):
         if installed != archived:
             raise RuntimeError("Installed bytes differ from exact archive")
         result = capture([python, probe], temporary, log, redactions)
-        summary = {"revision": sha, "probe": str(probe.relative_to(ROOT)).replace("\\", "/"), "probe_sha256": sha256(probe.read_bytes()), "wheel_sha256": sha256(wheel.read_bytes()), "archive_installed_source_bytes_equal": True, "source_file_sha256": archived, "probe_exit": result.returncode, "probe_stdout": result.stdout.strip(), "probe_stderr": result.stderr.strip()}
+        summary = {"revision": sha, "probe": probe_label or str(probe.relative_to(ROOT)).replace("\\", "/"), "probe_sha256": sha256(probe.read_bytes()), "wheel_sha256": sha256(wheel.read_bytes()), "archive_installed_source_bytes_equal": True, "source_file_sha256": archived, "probe_exit": result.returncode, "probe_stdout": result.stdout.strip(), "probe_stderr": result.stderr.strip()}
     output_directory = Path(output_directory)
     output_directory.mkdir(parents=True, exist_ok=True)
     prefix = output_directory / (sha[:12] + "-" + probe.stem)

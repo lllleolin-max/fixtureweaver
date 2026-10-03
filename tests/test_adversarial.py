@@ -26,7 +26,7 @@ class AdversarialTests(unittest.TestCase):
         with closing(sqlite3.connect(self.source)) as db, db:
             db.executescript(sql)
 
-    def fail(self, plan, code):
+    def refusal(self, plan, code):
         before = self.source.read_bytes()
         with self.assertRaises(FixtureError) as caught:
             weave(self.source, self.dest, plan)
@@ -39,7 +39,7 @@ class AdversarialTests(unittest.TestCase):
         # uses a NOCASE domain that equates them. A uniform mask cannot retain
         # the original BINARY uniqueness. SQLite, not a Python set, rejects it.
         self.database("CREATE TABLE p(a TEXT UNIQUE); CREATE TABLE q(b TEXT COLLATE NOCASE); INSERT INTO p VALUES('A'),('a'); INSERT INTO q VALUES('A');")
-        self.fail({"seeds": [{"table": "p"},{"table": "q"}], "masks": [{"name": "id", "columns": [["p","a"],["q","b"]]}]}, "MASK_CONSTRAINT")
+        self.refusal({"seeds": [{"table": "p"},{"table": "q"}], "masks": [{"name": "id", "columns": [["p","a"],["q","b"]]}]}, "MASK_CONSTRAINT")
 
     def test_protected_value_colliding_with_generated_mask(self):
         self.database("CREATE TABLE p(id TEXT UNIQUE); INSERT INTO p VALUES('alpha');")
@@ -51,11 +51,11 @@ class AdversarialTests(unittest.TestCase):
         with closing(sqlite3.connect(self.source)) as db, db:
             db.execute("INSERT INTO p VALUES(?)", (token,))
         plan["protect"] = [{"table": "p", "column": "id", "where": "id=?", "params": [token]}]
-        self.fail(plan, "MASK_CONSTRAINT")
+        self.refusal(plan, "MASK_CONSTRAINT")
 
     def test_overlapping_fk_classes_and_duplicates(self):
         self.database("CREATE TABLE p(id INTEGER PRIMARY KEY); CREATE TABLE c(id INTEGER REFERENCES p(id)); INSERT INTO p VALUES(1); INSERT INTO c VALUES(1);")
-        self.fail({"seeds": [{"table": "c"}], "masks": [{"name": "one", "columns": [["p","id"]]}, {"name": "two", "columns": [["c","id"]]}]}, "MASK_CONFLICT")
+        self.refusal({"seeds": [{"table": "c"}], "masks": [{"name": "one", "columns": [["p","id"]]}, {"name": "two", "columns": [["c","id"]]}]}, "MASK_CONFLICT")
         report = weave(self.source, self.dest, {"seeds": [{"table": "c"},{"table": "c"}]})
         self.assertEqual(report["seed_rows"], 1)
         self.assertEqual(sum(report["retained_rows"].values()), 2)
@@ -67,41 +67,41 @@ class AdversarialTests(unittest.TestCase):
 
     def test_check_refusal(self):
         self.database("CREATE TABLE t(id INTEGER PRIMARY KEY CHECK(id<100)); INSERT INTO t VALUES(1);")
-        self.fail({"seeds": [{"table": "t"}], "masks": [{"name": "id", "columns": [["t","id"]]}]}, "MASK_CONSTRAINT")
+        self.refusal({"seeds": [{"table": "t"}], "masks": [{"name": "id", "columns": [["t","id"]]}]}, "MASK_CONSTRAINT")
 
     def test_invalid_parent_unique_collation(self):
         self.database("CREATE TABLE p(id TEXT); CREATE UNIQUE INDEX u ON p(id COLLATE NOCASE); CREATE TABLE c(p TEXT REFERENCES p(id)); INSERT INTO p VALUES('A');")
-        self.fail({"seeds": [{"table": "p"}]}, "KEY_MODEL")
+        self.refusal({"seeds": [{"table": "p"}]}, "KEY_MODEL")
 
     def test_work_cell_result_and_value_bounds(self):
         self.database("CREATE TABLE t(a TEXT,b TEXT); INSERT INTO t VALUES('a','x'),('b','y');")
-        self.fail({"seeds": [{"table": "t"}], "masks": [{"name": "a", "columns": [["t","a"]]}, {"name": "b", "columns": [["t","b"]]}], "limits": {"cells": 3}}, "CELL_LIMIT")
-        self.fail({"seeds": [{"table": "t"}], "limits": {"steps": 1}}, "WORK_LIMIT")
-        self.fail({"seeds": [{"table": "t"}], "limits": {"query_rows": 1}, "queries": [{"name": "all", "sql": "SELECT a FROM t", "expect": [["a"],["b"]]}]}, "QUERY_LIMIT")
-        self.fail({"seeds": [{"table": "t"}], "queries": [{"name": "wide", "sql": "SELECT printf('%2000000s','x')", "expect": [["x"]]}]}, "SQLITE")
+        self.refusal({"seeds": [{"table": "t"}], "masks": [{"name": "a", "columns": [["t","a"]]}, {"name": "b", "columns": [["t","b"]]}], "limits": {"cells": 3}}, "CELL_LIMIT")
+        self.refusal({"seeds": [{"table": "t"}], "limits": {"steps": 1}}, "WORK_LIMIT")
+        self.refusal({"seeds": [{"table": "t"}], "limits": {"query_rows": 1}, "queries": [{"name": "all", "sql": "SELECT a FROM t", "expect": [["a"],["b"]]}]}, "QUERY_LIMIT")
+        self.refusal({"seeds": [{"table": "t"}], "queries": [{"name": "wide", "sql": "SELECT printf('%2000000s','x')", "expect": [["x"]]}]}, "CONSUMER_QUERY")
 
     def test_seed_and_query_are_read_only(self):
         self.database("CREATE TABLE t(a INTEGER); INSERT INTO t VALUES(1);")
-        self.fail({"seeds": [{"table": "t"}], "queries": [{"name": "delete", "sql": "DELETE FROM t RETURNING a", "expect": [[1]]}]}, "SQLITE")
-        self.fail({"seeds": [{"table": "t", "where": "load_extension('evil') IS NULL"}]}, "SQLITE")
+        self.refusal({"seeds": [{"table": "t"}], "queries": [{"name": "delete", "sql": "DELETE FROM t RETURNING a", "expect": [[1]]}]}, "SQLITE")
+        self.refusal({"seeds": [{"table": "t", "where": "load_extension('evil') IS NULL"}]}, "SQLITE")
 
     def test_virtual_generated_custom_collation(self):
         self.database("CREATE TABLE t(a INTEGER,b INTEGER GENERATED ALWAYS AS(a+1)); INSERT INTO t(a) VALUES(1);")
-        self.fail({"seeds": [{"table": "t"}]}, "UNSUPPORTED")
+        self.refusal({"seeds": [{"table": "t"}]}, "UNSUPPORTED")
         self.source.unlink()
         with closing(sqlite3.connect(self.source)) as db, db:
             db.create_collation("custom", lambda a,b: (a>b)-(a<b))
             db.executescript("CREATE TABLE t(a TEXT COLLATE custom PRIMARY KEY); INSERT INTO t VALUES('a');")
-        self.fail({"seeds": [{"table": "t"}]}, "UNSUPPORTED")
+        self.refusal({"seeds": [{"table": "t"}]}, "UNSUPPORTED")
 
     def test_wal_and_sidecar_refusal(self):
         self.database("CREATE TABLE t(a INTEGER); INSERT INTO t VALUES(1);")
         Path(str(self.source)+"-journal").write_bytes(b"sentinel")
-        self.fail({"seeds": [{"table": "t"}]}, "QUIESCENT")
+        self.refusal({"seeds": [{"table": "t"}]}, "QUIESCENT")
         Path(str(self.source)+"-journal").unlink()
         with closing(sqlite3.connect(self.source)) as db:
             db.execute("PRAGMA journal_mode=WAL")
-        self.fail({"seeds": [{"table": "t"}]}, "QUIESCENT")
+        self.refusal({"seeds": [{"table": "t"}]}, "QUIESCENT")
 
     def test_blob_null_and_json_consumer_output(self):
         self.database("CREATE TABLE t(a BLOB UNIQUE); INSERT INTO t VALUES(X'0102'),(NULL);")
