@@ -1,0 +1,15 @@
+{
+  "revision": "d6e794aca2d3fca9c9fb8d13bdf6460010b577e7",
+  "probe": "probes/conflict_policy_probe.py",
+  "probe_sha256": "4ce6b8863410e611c41347c7cde1c569f54022ead61817c0fbb82f7d60b582f5",
+  "wheel_sha256": "e7b16915d4846758ecfbc90a346198e1afc7e82298136f593ca89f986e96b5f7",
+  "archive_installed_source_bytes_equal": true,
+  "source_file_sha256": {
+    "cli.py": "1952e0eaea9d79d6a77616a76d04bce132e98d05a519a12e84e6599eec723a47",
+    "engine.py": "03a484bf6e77346164d37a180814d1d39478dacf7b744230ac4ad00c5c0fe906",
+    "__init__.py": "3cad840688ed45b58fde564df5715ff0604ecf83f0d21d02ad15f547a5e20ac2"
+  },
+  "probe_exit": 0,
+  "probe_stdout": "{\"probe\": \"schema_conflict_policy\", \"passed\": true, \"error\": \"MASK_CONSTRAINT\", \"no_destination\": true, \"source_unchanged\": true}",
+  "probe_stderr": ""
+}

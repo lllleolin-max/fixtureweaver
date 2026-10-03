@@ -1,0 +1,323 @@
+$ <release-temp>\env\Scripts\python.exe -m pip wheel <release-temp>\source --no-deps --wheel-dir <release-temp>\wheels
+Processing <user>\appdata\local\temp\fixtureweaver-release-rtjx3sgr\source
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: fixtureweaver
+  Building wheel for fixtureweaver (pyproject.toml): started
+  Building wheel for fixtureweaver (pyproject.toml): finished with status 'done'
+  Created wheel for fixtureweaver: filename=fixtureweaver-0.1.0-py3-none-any.whl size=18061 sha256=80a71946b5f9c1b1cdc04ac66fcfe4d4434bbd914f06cf8bf512fc46ebb29f97
+  Stored in directory: <user>\AppData\Local\Temp\pip-ephem-wheel-cache-5tqbsqpo\wheels\ac\d1\3f\243aa1ec01d78114c0fb434ee6c395411fb297ff9b9f0dd1e2
+Successfully built fixtureweaver
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: <release-temp>\env\Scripts\python.exe -m pip install --upgrade pip
+
+exit=0
+
+$ <release-temp>\env\Scripts\python.exe -m pip install --no-deps <release-temp>\wheels\fixtureweaver-0.1.0-py3-none-any.whl
+Processing <user>\appdata\local\temp\fixtureweaver-release-rtjx3sgr\wheels\fixtureweaver-0.1.0-py3-none-any.whl
+Installing collected packages: fixtureweaver
+Successfully installed fixtureweaver-0.1.0
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: <release-temp>\env\Scripts\python.exe -m pip install --upgrade pip
+
+exit=0
+
+$ <release-temp>\env\Scripts\python.exe -c import fixtureweaver,pathlib,hashlib,json,sys,sqlite3,sysconfig; p=pathlib.Path(fixtureweaver.__file__).parent; print(json.dumps({'files':{f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(p.glob('*.py'))},'python':sys.version.split()[0],'sqlite':sqlite3.sqlite_version,'scripts_path_is_same_environment':pathlib.Path(sysconfig.get_path('scripts')).parent==pathlib.Path(sys.prefix)}))
+{"files": {"__init__.py": "3cad840688ed45b58fde564df5715ff0604ecf83f0d21d02ad15f547a5e20ac2", "cli.py": "1952e0eaea9d79d6a77616a76d04bce132e98d05a519a12e84e6599eec723a47", "engine.py": "03a484bf6e77346164d37a180814d1d39478dacf7b744230ac4ad00c5c0fe906"}, "python": "3.14.3", "sqlite": "3.50.4", "scripts_path_is_same_environment": true}
+
+exit=0
+
+$ <release-temp>\env\Scripts\python.exe -m unittest discover -s <release-temp>\source\tests -v
+test_actual_registered_cli_malformed_duplicate_and_overflow (test_adversarial.AdversarialTests.test_actual_registered_cli_malformed_duplicate_and_overflow) ... ok
+test_blob_null_and_json_consumer_output (test_adversarial.AdversarialTests.test_blob_null_and_json_consumer_output) ... ok
+test_check_partial_expression_unique_and_views (test_adversarial.AdversarialTests.test_check_partial_expression_unique_and_views) ... ok
+test_check_refusal (test_adversarial.AdversarialTests.test_check_refusal) ... ok
+test_determinism_and_unlinked_equal_values (test_adversarial.AdversarialTests.test_determinism_and_unlinked_equal_values) ... ok
+test_invalid_parent_unique_collation (test_adversarial.AdversarialTests.test_invalid_parent_unique_collation) ... ok
+test_overlapping_fk_classes_and_duplicates (test_adversarial.AdversarialTests.test_overlapping_fk_classes_and_duplicates) ... ok
+test_protected_value_colliding_with_generated_mask (test_adversarial.AdversarialTests.test_protected_value_colliding_with_generated_mask) ... ok
+test_schema_conflict_policy_cannot_drop_retained_rows (test_adversarial.AdversarialTests.test_schema_conflict_policy_cannot_drop_retained_rows) ... ok
+test_seed_and_query_are_read_only (test_adversarial.AdversarialTests.test_seed_and_query_are_read_only) ... ok
+test_similar_internal_prefix_user_table (test_adversarial.AdversarialTests.test_similar_internal_prefix_user_table) ... ok
+test_sqlite_recursive_cte_oracle_small_cyclic_graphs (test_adversarial.AdversarialTests.test_sqlite_recursive_cte_oracle_small_cyclic_graphs) ... ok
+test_unique_collision_from_incompatible_class_domains (test_adversarial.AdversarialTests.test_unique_collision_from_incompatible_class_domains) ... ok
+test_virtual_generated_custom_collation (test_adversarial.AdversarialTests.test_virtual_generated_custom_collation) ... ok
+test_wal_and_sidecar_refusal (test_adversarial.AdversarialTests.test_wal_and_sidecar_refusal) ... ok
+test_work_cell_result_and_value_bounds (test_adversarial.AdversarialTests.test_work_cell_result_and_value_bounds) ... ok
+test_actual_affinity_nocase_composite_and_null (test_engine.FixtureTests.test_actual_affinity_nocase_composite_and_null) ... ok
+test_bounds_and_existing_destination (test_engine.FixtureTests.test_bounds_and_existing_destination) ... ok
+test_consumer_query_failure_not_published (test_engine.FixtureTests.test_consumer_query_failure_not_published) ... ok
+test_cyclic_closure (test_engine.FixtureTests.test_cyclic_closure) ... ok
+test_implicit_rowid_and_desc_primary_key (test_engine.FixtureTests.test_implicit_rowid_and_desc_primary_key) ... ok
+test_nonfinite_stored_identifier_refuses_cleanly (test_engine.FixtureTests.test_nonfinite_stored_identifier_refuses_cleanly) ... ok
+test_numeric_real_masks_keep_actual_storage_class (test_engine.FixtureTests.test_numeric_real_masks_keep_actual_storage_class) ... ok
+test_protection_keeps_affinity_representations (test_engine.FixtureTests.test_protection_keeps_affinity_representations) ... ok
+test_quoted_case_sensitive_unicode_names (test_engine.FixtureTests.test_quoted_case_sensitive_unicode_names) ... ok
+test_reduced_join_and_preserved_source (test_engine.FixtureTests.test_reduced_join_and_preserved_source) ... ok
+test_unsupported_trigger_and_dangling (test_engine.FixtureTests.test_unsupported_trigger_and_dangling) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 2.147s
+
+OK
+
+exit=0
+
+$ <release-temp>\env\Scripts\python.exe <release-temp>\source\examples\demo.py
+{
+  "synthetic": true,
+  "sdk_retained_rows": {
+    "account": 1,
+    "line": 2,
+    "orders": 1,
+    "tenant": 1
+  },
+  "source_total_rows": 16,
+  "fixture_total_rows": 5,
+  "closure_added_rows": 3,
+  "consumer_results": [
+    {
+      "name": "checkout",
+      "passed": true,
+      "result": [
+        [
+          120,
+          3,
+          2
+        ]
+      ]
+    }
+  ],
+  "actual_registered_cli_exit": 0,
+  "same_sdk_cli_database_hash": true,
+  "source_sha256_before": "3b0fd2aac77e1dd5a1711dd681b7b413cc36c844962434a18cafec1f81b2fe4e",
+  "source_sha256_after": "3b0fd2aac77e1dd5a1711dd681b7b413cc36c844962434a18cafec1f81b2fe4e",
+  "source_unchanged": true
+}
+
+exit=0
+
+$ <release-temp>\env\Scripts\python.exe <release-temp>\source\examples\contrast.py
+{
+  "synthetic": true,
+  "baseline_definition": "seed row sampling + deterministic independent column masking; closure ablation uses same engine closure with no shared masks",
+  "competitor_execution": false,
+  "cases": [
+    {
+      "case": "checkout_composite_affinity",
+      "source_sha256": "3b0fd2aac77e1dd5a1711dd681b7b413cc36c844962434a18cafec1f81b2fe4e",
+      "same_source_seed_masks_queries": true,
+      "sample_independent": {
+        "source_rows": 16,
+        "retained_rows": 2,
+        "foreign_key_violations": 2,
+        "consumer_queries": [
+          {
+            "name": "checkout",
+            "passed": false,
+            "result": []
+          }
+        ],
+        "usable": false
+      },
+      "closure_independent_ablation": {
+        "source_rows": 16,
+        "retained_rows": 5,
+        "foreign_key_violations": 4,
+        "consumer_queries": [
+          {
+            "name": "checkout",
+            "passed": false,
+            "result": []
+          }
+        ],
+        "usable": false
+      },
+      "closure_shared": {
+        "source_rows": 16,
+        "retained_rows": 5,
+        "closure_added_rows": 3,
+        "foreign_key_violations": 0,
+        "consumer_queries": [
+          {
+            "name": "checkout",
+            "passed": true,
+            "result": [
+              [
+                120,
+                3,
+                2
+              ]
+            ]
+          }
+        ],
+        "usable": true,
+        "source_bytes": 24576,
+        "fixture_bytes": 24576
+      },
+      "source_unchanged": true
+    },
+    {
+      "case": "equal_no_relational_dependency",
+      "source_sha256": "7b6028b4652b03f8bd3e9851438387d0a0fdfac8f0258eaa423773d30b0fcdd9",
+      "same_source_seed_masks_queries": true,
+      "sample_independent": {
+        "source_rows": 2,
+        "retained_rows": 1,
+        "foreign_key_violations": 0,
+        "consumer_queries": [
+          {
+            "name": "count",
+            "passed": true,
+            "result": [
+              [
+                1,
+                8
+              ]
+            ]
+          }
+        ],
+        "usable": true
+      },
+      "closure_independent_ablation": {
+        "source_rows": 2,
+        "retained_rows": 1,
+        "foreign_key_violations": 0,
+        "consumer_queries": [
+          {
+            "name": "count",
+            "passed": true,
+            "result": [
+              [
+                1,
+                8
+              ]
+            ]
+          }
+        ],
+        "usable": true
+      },
+      "closure_shared": {
+        "source_rows": 2,
+        "retained_rows": 1,
+        "closure_added_rows": 0,
+        "foreign_key_violations": 0,
+        "consumer_queries": [
+          {
+            "name": "count",
+            "passed": true,
+            "result": [
+              [
+                1,
+                8
+              ]
+            ]
+          }
+        ],
+        "usable": true,
+        "source_bytes": 8192,
+        "fixture_bytes": 8192
+      },
+      "source_unchanged": true
+    },
+    {
+      "case": "adverse_full_chain_retention",
+      "source_sha256": "18907344def9b17aca69e6cc425bf551902436c1562f00160564d1b2b9e480af",
+      "same_source_seed_masks_queries": true,
+      "sample_independent": {
+        "source_rows": 20,
+        "retained_rows": 1,
+        "foreign_key_violations": 1,
+        "consumer_queries": [
+          {
+            "name": "complete_chain",
+            "passed": false,
+            "result": [
+              [
+                1
+              ]
+            ]
+          }
+        ],
+        "usable": false
+      },
+      "closure_independent_ablation": {
+        "source_rows": 20,
+        "retained_rows": 20,
+        "foreign_key_violations": 19,
+        "consumer_queries": [
+          {
+            "name": "complete_chain",
+            "passed": true,
+            "result": [
+              [
+                20
+              ]
+            ]
+          }
+        ],
+        "usable": false
+      },
+      "closure_shared": {
+        "source_rows": 20,
+        "retained_rows": 20,
+        "closure_added_rows": 19,
+        "foreign_key_violations": 0,
+        "consumer_queries": [
+          {
+            "name": "complete_chain",
+            "passed": true,
+            "result": [
+              [
+                20
+              ]
+            ]
+          }
+        ],
+        "usable": true,
+        "source_bytes": 8192,
+        "fixture_bytes": 8192
+      },
+      "source_unchanged": true
+    }
+  ],
+  "adverse_closure_bound": "CLOSURE_LIMIT"
+}
+
+exit=0
+
+$ <release-temp>\env\Scripts\python.exe <release-temp>\source\probes\conflict_policy_probe.py
+{"probe": "schema_conflict_policy", "passed": true, "error": "MASK_CONSTRAINT", "no_destination": true, "source_unchanged": true}
+
+exit=0
+
+$ <release-temp>\env\Scripts\python.exe <release-temp>\source\probes\protected_affinity_probe.py
+{"probe": "protected_affinity", "passed": true, "result": [[1, "1.0", "integer", "text"]]}
+
+exit=0
+
+$ <release-temp>\env\Scripts\python.exe <release-temp>\source\probes\rowid_probe.py
+{"probe": "rowid_consumer", "passed": true, "result": [[42, "retained"]]}
+
+exit=0
+
+$ <release-temp>\env\Scripts\python.exe <release-temp>\source\probes\scalar_probe.py
+{"probe": "adversarial_scalars", "passed": true, "observed": {"cli": {"passed": true, "exit": 2, "traceback_present": false}, "sdk": {"passed": true, "code": "MASK_TYPE"}, "source_unchanged": true, "no_destination": true}}
+
+exit=0
+
+$ <release-temp>\env\Scripts\python.exe <release-temp>\source\probes\storage_type_probe.py
+{"probe": "numeric_real_storage", "passed": true, "result": [["real", "text", 1]], "source_unchanged": true}
+
+exit=0
+
+$ <release-temp>\env\Scripts\python.exe <release-temp>\source\probes\work_bound_probe.py
+{"probe": "cumulative_vm_budget", "passed": true, "error": "WORK_LIMIT", "source_unchanged": true, "no_destination": true}
+
+exit=0

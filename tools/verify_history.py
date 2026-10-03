@@ -39,6 +39,6 @@ def verify(records_only=False, selected_round=None):
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
     parser.add_argument("--records-only",action="store_true")
-    parser.add_argument("--round",type=int,choices=range(1,6))
+    parser.add_argument("--round",type=int,choices=range(1,7))
     args=parser.parse_args()
     raise SystemExit(verify(args.records_only,args.round))

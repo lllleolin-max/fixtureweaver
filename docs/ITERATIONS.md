@@ -2,7 +2,7 @@
 
 Observed locally on Windows, Python 3.14.3, SQLite 3.50.4, 2026-10-03. Initial implementation is `9b74f497c85e3e3ad34927a3bbd5796fb896cd03`. These rounds are post-initial defect discoveries and **separate direct-parent code corrections**, not a commit/feature count. Each identical portable probe was executed against a normally built and installed wheel from the exact before and after Git archives. No editable install or `PYTHONPATH` was used.
 
-`tools/archive_probe.py` creates a fresh archive and virtual environment per revision, runs ordinary `pip wheel`/`pip install`, compares installed package bytes with archive files, executes the same external probe, and saves actual stdout/exit/build logs. Tracked logs redact local host paths. Wheel ZIP hashes can vary across rebuilds; the archived/installed Python byte equality is checked each time. `docs/history.json` fixes probe hashes and SHAs. `python tools/verify_history.py` verifies direct parents/probe bytes and replays all ten installs; `--records-only` checks saved receipts without rerunning.
+`tools/archive_probe.py` creates a fresh archive and virtual environment per revision, runs ordinary `pip wheel`/`pip install`, compares installed package bytes with archive files, executes the same external probe, and saves actual stdout/exit/build logs. Tracked logs redact local host paths. Wheel ZIP hashes can vary across rebuilds; the archived/installed Python byte equality is checked each time. `docs/history.json` fixes probe hashes and SHAs. `python tools/verify_history.py` verifies direct parents/probe bytes and replays all twelve installs; `--records-only` checks saved receipts without rerunning.
 
 ## Round 1: implicit rowid consumer changed
 
@@ -84,6 +84,22 @@ python tools/archive_probe.py ab731fd039cd65a83b035e10e9964fec2ee82b8b probes/st
 
 Remaining boundary: schema CHECK/UNIQUE constraints can reject tokens; this preserves accepted storage classes, not all business meanings. The mask engine is not an arbitrary constraint solver.
 
+## Round 6: schema REPLACE silently discarded a retained row
+
+- Before: `ab731fd039cd65a83b035e10e9964fec2ee82b8b`.
+- Concrete discovery: a source UNIQUE constraint declared `ON CONFLICT REPLACE` accepted a masked collision by deleting an earlier retained row. The report claimed two retained rows while the actual materialized table contained one; FK/integrity checks alone did not expose the loss.
+- Correction: `d6e794aca2d3fca9c9fb8d13bdf6460010b577e7` uses `INSERT OR ABORT` to override schema conflict policies during construction. It also checks actual post-commit per-table row counts against retained dependency closure and records that invariant. Source schema declarations remain intact for consumer operations.
+- Unchanged probe: [`conflict_policy_probe.py`](../probes/conflict_policy_probe.py), SHA-256 `4ce6b8863410e611c41347c7cde1c569f54022ead61817c0fbb82f7d60b582f5`.
+- Before: exit 1, reported retained `2`, actual retained `1`, source unchanged. [Receipt](evidence/history/ab731fd039cd-conflict_policy_probe.json), [log](evidence/history/ab731fd039cd-conflict_policy_probe.log).
+- After: exit 0, witnessed `MASK_CONSTRAINT`, no destination and source unchanged. [Receipt](evidence/history/d6e794aca2d3-conflict_policy_probe.json), [log](evidence/history/d6e794aca2d3-conflict_policy_probe.log).
+
+```sh
+python tools/archive_probe.py ab731fd039cd65a83b035e10e9964fec2ee82b8b probes/conflict_policy_probe.py --expect-exit 1
+python tools/archive_probe.py d6e794aca2d3fca9c9fb8d13bdf6460010b577e7 probes/conflict_policy_probe.py
+```
+
+The full suite additionally tests source REPLACE/IGNORE/FAIL declarations. Mask collisions refuse instead of discarding rows. This fixes fixture construction, not the behavior of later user SQL against the faithfully copied schema.
+
 ## Full-suite release evidence and honest scope
 
 The first full archived suite at `2c64ce9` found a test-harness expectation error: SQLite's bounded `printf` returned NULL, leading to `CONSUMER_QUERY`, rather than throwing the test's expected native error. A helper also shadowed `unittest.TestCase.fail`, obscuring the assertion. `4bfbfadd19bdeef6537005befa020aca97095fad` fixes that harness expectation/name and adds cross-platform/replay configuration. It is **not counted as another defect-correction iteration**.
@@ -93,3 +109,5 @@ The full suite was actually run from archive `4bfbfadd19bdeef6537005befa020aca97
 Subsequent documentation/evidence commits are not extra iterations. Always use `python tools/verify_release.py <exact-sha> --out .artifacts/final` for a fresh final archive verification. Remote Ubuntu/Windows CI is not claimed by local receipts. No privacy proof, customers, revenue, production savings or self-awarded rubric pass is asserted.
 
 After round 5, an ordinary wheel from archive `ab731fd039cd65a83b035e10e9964fec2ee82b8b` passed **26 tests** and all five portable probes, SDK, actual registered console and fair contrast. [Updated receipt](evidence/release/ab731fd039cd.json), [actual log](evidence/release/ab731fd039cd.log). The earlier 25-test statement remains attached solely to its earlier archive.
+
+After round 6, archive `d6e794aca2d3fca9c9fb8d13bdf6460010b577e7` passed **27 tests**, all six probes, SDK/registered console and contrast. [Receipt](evidence/release/d6e794aca2d3.json), [actual log](evidence/release/d6e794aca2d3.log). Implementation is frozen for independent review; final evidence/docs bookkeeping is not another correction cycle.
