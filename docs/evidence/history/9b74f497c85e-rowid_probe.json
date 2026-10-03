@@ -1,0 +1,15 @@
+{
+  "revision": "9b74f497c85e3e3ad34927a3bbd5796fb896cd03",
+  "probe": "probes/rowid_probe.py",
+  "probe_sha256": "4a7578e8ba1e5443389a4eb5af5c36292aff34230dd04003c5362e15e3f2dad5",
+  "wheel_sha256": "cf5942bc2a2e3a5b2e58ae35ceaf608527513b3ba4ec6a451ade85a7f807fb3c",
+  "archive_installed_source_bytes_equal": true,
+  "source_file_sha256": {
+    "cli.py": "ef265161c59f95a0944ddb8164303a18ec836ee470cb46e280fb5d01f249bb3b",
+    "engine.py": "4daf174da3a6329cf7d3a17d1f7e0c31a18f52149cd280027af4e9e3cfb6f085",
+    "__init__.py": "bb56833ea35274affe16d70a7db18ffac6e986957ea021cd3eadd672a3dd9b79"
+  },
+  "probe_exit": 1,
+  "probe_stdout": "{\"probe\": \"rowid_consumer\", \"passed\": false, \"error\": {\"code\": \"CONSUMER_QUERY\", \"message\": \"Consumer query expectation changed; adjust seeds, protected values or expectations\", \"witness\": {\"query\": \"rowid_consumer\", \"expected\": [[42, \"retained\"]], \"actual\": [[1, \"retained\"]]}}}",
+  "probe_stderr": ""
+}

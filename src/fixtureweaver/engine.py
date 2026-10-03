@@ -64,6 +64,7 @@ class Table:
     pk: tuple[str, ...]
     locator: tuple[str, ...]
     rowid: bool
+    rowid_key: str | None
 
     @property
     def projection(self) -> str:
@@ -158,7 +159,11 @@ def _schema(db: sqlite3.Connection) -> tuple[dict[str, Table], list[ForeignKey],
                 if not aliases:
                     raise FixtureError("UNSUPPORTED", "All SQLite rowid aliases are shadowed", object=name)
                 locator = (aliases[0],)
-            tables[name] = Table(name, sql, columns, pk, locator, rowid)
+            primary_indexes = [item for item in db.execute(f"PRAGMA index_list({quote(name)})") if item[3] == "pk"]
+            # INTEGER PRIMARY KEY aliases rowid unless SQLite built a separate PK index
+            # (including the historical INTEGER PRIMARY KEY DESC exception).
+            rowid_key = pk[0] if rowid and len(pk) == 1 and not primary_indexes and next(row[2].upper() for row in details if row[1] == pk[0]) == "INTEGER" else None
+            tables[name] = Table(name, sql, columns, pk, locator, rowid, rowid_key)
         elif kind == "index" and sql:
             indexes.append(sql)
         elif kind == "view":
@@ -447,10 +452,13 @@ def weave(source: str | Path, destination: str | Path, plan: dict) -> dict:
         output.execute("BEGIN")
         output.execute("PRAGMA defer_foreign_keys=ON")
         for name, table in tables.items():
-            placeholders = ",".join("?" for _ in table.columns)
-            statement = f"INSERT INTO {quote(name)} ({','.join(quote(c) for c in table.columns)}) VALUES ({placeholders})"
+            insertion_columns = table.locator + table.columns if table.rowid and table.rowid_key is None else table.columns
+            placeholders = ",".join("?" for _ in insertion_columns)
+            statement = f"INSERT INTO {quote(name)} ({','.join(quote(c) for c in insertion_columns)}) VALUES ({placeholders})"
             for identity, values in retained[name].items():
                 data = [changes.get((name, identity, column), values[column]) for column in table.columns]
+                if table.rowid and table.rowid_key is None:
+                    data = list(identity) + data
                 try:
                     output.execute(statement, data)
                 except sqlite3.IntegrityError as error:

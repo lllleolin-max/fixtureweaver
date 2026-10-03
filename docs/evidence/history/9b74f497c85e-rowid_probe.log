@@ -1,0 +1,39 @@
+$ <history-temp>\env\Scripts\python.exe -m pip wheel <history-temp>\source --no-deps --wheel-dir <history-temp>\wheels
+Processing <user>\appdata\local\temp\fixtureweaver-history-sly6k_jo\source
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: fixtureweaver
+  Building wheel for fixtureweaver (pyproject.toml): started
+  Building wheel for fixtureweaver (pyproject.toml): finished with status 'done'
+  Created wheel for fixtureweaver: filename=fixtureweaver-0.1.0-py3-none-any.whl size=11981 sha256=cf5942bc2a2e3a5b2e58ae35ceaf608527513b3ba4ec6a451ade85a7f807fb3c
+  Stored in directory: <user>\AppData\Local\Temp\pip-ephem-wheel-cache-8untyjqx\wheels\df\eb\f4\fc2909a4dee406a10da2110e3cd8109d9c531c1369d94fcdfc
+Successfully built fixtureweaver
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: <history-temp>\env\Scripts\python.exe -m pip install --upgrade pip
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe -m pip install --no-deps <history-temp>\wheels\fixtureweaver-0.1.0-py3-none-any.whl
+Processing <user>\appdata\local\temp\fixtureweaver-history-sly6k_jo\wheels\fixtureweaver-0.1.0-py3-none-any.whl
+Installing collected packages: fixtureweaver
+Successfully installed fixtureweaver-0.1.0
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: <history-temp>\env\Scripts\python.exe -m pip install --upgrade pip
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe -c import fixtureweaver,pathlib,json,hashlib; p=pathlib.Path(fixtureweaver.__file__).parent; print(json.dumps({f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(p.glob('*.py'))}))
+{"__init__.py": "bb56833ea35274affe16d70a7db18ffac6e986957ea021cd3eadd672a3dd9b79", "cli.py": "ef265161c59f95a0944ddb8164303a18ec836ee470cb46e280fb5d01f249bb3b", "engine.py": "4daf174da3a6329cf7d3a17d1f7e0c31a18f52149cd280027af4e9e3cfb6f085"}
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe <repo>\probes\rowid_probe.py
+{"probe": "rowid_consumer", "passed": false, "error": {"code": "CONSUMER_QUERY", "message": "Consumer query expectation changed; adjust seeds, protected values or expectations", "witness": {"query": "rowid_consumer", "expected": [[42, "retained"]], "actual": [[1, "retained"]]}}}
+
+exit=1

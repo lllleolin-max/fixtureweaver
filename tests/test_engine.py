@@ -80,6 +80,11 @@ class FixtureTests(unittest.TestCase):
         report = weave(self.source, self.output, {"seeds": [{"table": "SELECT"}], "masks": [{"name": "id", "columns": [["select", "ß"]]}]})
         self.assertEqual(report["retained_rows"], {"select": 1})
 
+    def test_implicit_rowid_and_desc_primary_key(self):
+        self.database("CREATE TABLE item(id INTEGER PRIMARY KEY DESC, value TEXT); INSERT INTO item(rowid,id,value) VALUES(42,9,'retained'),(73,10,'dropped');")
+        report = weave(self.source, self.output, {"seeds": [{"table": "item", "where": "id=9"}], "queries": [{"name": "rowid", "sql": "SELECT rowid,id FROM item", "expect": [[42,9]]}]})
+        self.assertEqual(report["retained_rows"], {"item": 1})
+
 
 if __name__ == "__main__":
     unittest.main()
