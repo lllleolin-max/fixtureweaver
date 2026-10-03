@@ -4,23 +4,30 @@ Reduced SQLite fixtures that still join.
 
 An integration-test engineer selects rows that reproduce a checkout, billing or account bug. FixtureWeaver follows their actual SQLite foreign keys, applies one deterministic mapping to each declared identifier class, creates a separate database, and checks its real constraints and declared consumer queries. It reports the extra rows dependencies require. **Stable pseudonyms retain linkage; no anonymity or privacy guarantee is provided.**
 
+中文：把复现问题所需的少量 SQLite 行补齐外键依赖，统一替换关联标识，生成仍能通过声明查询的独立测试库。适合静止数据库副本上的集成测试夹具；需要匿名化证明、在线快照或通用数据合成时不适用。
+
 ## Install and run
 
-Python **3.11+**, SQLite **3.37+**, standard-library runtime. On Windows, use `py -3` in place of `python` if necessary. Run commands from the checkout in your activated virtual environment.
+Python **3.11+**, SQLite **3.37+**, standard-library runtime. On Windows, use `py -3` in place of `python` if necessary. Run commands from the checkout in the intended Python environment. For an isolated install, run `python -m venv .venv`, then `.venv\Scripts\Activate.ps1` in PowerShell or `source .venv/bin/activate` in Bash. Check your Python's SQLite engine with `python -c "import sqlite3; print(sqlite3.sqlite_version)"`.
 
 ```sh
-python -m venv .venv
-# Activate .venv for your shell, then:
 python -m pip install .
 python examples/demo.py --out demo-output
-fixtureweaver demo-output/checkout.db demo-output/another-fixture.db --plan demo-output/plan.json
-python examples/contrast.py
-python -m unittest discover -s tests -v
 ```
 
 The demo exercises the installed SDK **and actual registered console executable**, located through the same interpreter's `sysconfig.get_path('scripts')`. Its synthetic checkout retains **5 of 16 rows**, adds 3 dependency rows, passes query `[[120,3,2]]`, preserves source bytes, and produces the same SDK/CLI fixture hash. The tiny database occupies **24,576 bytes both before and after**: disk savings and runtime savings are not established. [Full measured receipt](docs/evidence/release/d6e794aca2d3.json).
 
+Inspect `demo-output/plan.json`, the source `checkout.db`, and the generated `sdk-fixture.db`/`cli-fixture.db`. The directory must be new for a repeated demo; choose another `--out`. To run the CLI yourself with the generated plan:
+
+```console
+fixtureweaver demo-output/checkout.db demo-output/another-fixture.db --plan demo-output/plan.json
+```
+
+If the command is not on PATH, use `python -m fixtureweaver.cli` with the same arguments. `pip install .` builds and installs a normal wheel.
+
 ## SDK and plan
+
+For your own application, make a quiescent supported SQLite copy, select bug-reproducing seed rows, declare linked identifier masks and exact consumer expectations, then call `weave` or the CLI. Point your integration test at the new destination database and preserve the JSON report with its plan. The following SDK snippet illustrates a schema with `orders.account → account.id`; it requires your matching source database. Use the demo above for a self-contained runnable example.
 
 ```python
 from fixtureweaver import FixtureError, weave
@@ -78,6 +85,8 @@ Destination must be new. Atomic publication uses a hard link from a validated si
 Autoincrement sequences are rebuilt by retained inserts; SQLite statistics, application/user-version pragmas and storage settings are not copied. Only declared queries are certified. Read authorizers/bounds reduce accidental misuse; they are not a hostile-input native-engine sandbox. Expensive unindexed equality domains and full closure can eliminate reduction benefits.
 
 ## Verification and pilot
+
+Optional checks: `python examples/contrast.py` reproduces the synthetic comparisons; `python -m unittest discover -s tests -v` runs the suite.
 
 [ITERATIONS.md](docs/ITERATIONS.md) records **six** real post-initial correction cycles, each with direct-parent SHAs, an unchanged fail→pass archive-wheel probe and actual logs. Replay: `python tools/verify_history.py`; provenance-only check: add `--records-only`. Fresh full normal archive-wheel check: `python tools/verify_release.py HEAD --out .artifacts/final`.
 
