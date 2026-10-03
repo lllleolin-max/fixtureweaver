@@ -8,6 +8,13 @@ An integration-test engineer selects rows that reproduce a checkout, billing or 
 
 ## Install and run
 
+With Git installed, start from a new checkout / 首次使用先克隆并进入目录：
+
+```console
+git clone https://github.com/lllleolin-max/fixtureweaver.git
+cd fixtureweaver
+```
+
 Python **3.11+**, SQLite **3.37+**, standard-library runtime. On Windows, use `py -3` in place of `python` if necessary. Run commands from the checkout in the intended Python environment. For an isolated install, run `python -m venv .venv`, then `.venv\Scripts\Activate.ps1` in PowerShell or `source .venv/bin/activate` in Bash. Check your Python's SQLite engine with `python -c "import sqlite3; print(sqlite3.sqlite_version)"`.
 
 ```sh
