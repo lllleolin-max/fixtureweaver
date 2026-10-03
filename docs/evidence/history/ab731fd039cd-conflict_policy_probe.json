@@ -1,0 +1,15 @@
+{
+  "revision": "ab731fd039cd65a83b035e10e9964fec2ee82b8b",
+  "probe": "probes/conflict_policy_probe.py",
+  "probe_sha256": "4ce6b8863410e611c41347c7cde1c569f54022ead61817c0fbb82f7d60b582f5",
+  "wheel_sha256": "b66018061d5a0349d9b167651b652c06acc06e1c8536067b29322ee05687b7ca",
+  "archive_installed_source_bytes_equal": true,
+  "source_file_sha256": {
+    "cli.py": "1952e0eaea9d79d6a77616a76d04bce132e98d05a519a12e84e6599eec723a47",
+    "engine.py": "81275dccc38777fc55ada57b94799b7a8eff55bbeb73f22f78976c1b942b50df",
+    "__init__.py": "3cad840688ed45b58fde564df5715ff0604ecf83f0d21d02ad15f547a5e20ac2"
+  },
+  "probe_exit": 1,
+  "probe_stdout": "{\"probe\": \"schema_conflict_policy\", \"passed\": false, \"reported_retained\": 2, \"actual_retained\": 1, \"source_unchanged\": true}",
+  "probe_stderr": ""
+}

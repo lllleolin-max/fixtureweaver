@@ -2,5 +2,6 @@
   {"round":1,"before":"9b74f497c85e3e3ad34927a3bbd5796fb896cd03","after":"41e1c6c077f9eeea8da481133d0955beae47bb7a","probe":"probes/rowid_probe.py","probe_sha256":"4a7578e8ba1e5443389a4eb5af5c36292aff34230dd04003c5362e15e3f2dad5"},
   {"round":2,"before":"41e1c6c077f9eeea8da481133d0955beae47bb7a","after":"3e691cc99089091e7d19ab4377ec9893c7eb4e51","probe":"probes/protected_affinity_probe.py","probe_sha256":"2f464871c8c89f1e58395d0a18a71e6bf110f5d4ee554239823cb55060913548"},
   {"round":3,"before":"3e691cc99089091e7d19ab4377ec9893c7eb4e51","after":"76b4125ecf023305d6f173f14d0d123b9863f701","probe":"probes/scalar_probe.py","probe_sha256":"1a1cf2ea62b29bf903fada6c69b7a5669798e122ee5f27fc0216f79567b60c4e"},
-  {"round":4,"before":"76b4125ecf023305d6f173f14d0d123b9863f701","after":"2c64ce94ce4f090262d5da84b25c7b55750412e5","probe":"probes/work_bound_probe.py","probe_sha256":"56e29fce539663ee3f176f08f660843c22dcfe29526bb76af56928743c4b80bf"}
+  {"round":4,"before":"76b4125ecf023305d6f173f14d0d123b9863f701","after":"2c64ce94ce4f090262d5da84b25c7b55750412e5","probe":"probes/work_bound_probe.py","probe_sha256":"56e29fce539663ee3f176f08f660843c22dcfe29526bb76af56928743c4b80bf"},
+  {"round":5,"before":"4bfbfadd19bdeef6537005befa020aca97095fad","after":"ab731fd039cd65a83b035e10e9964fec2ee82b8b","probe":"probes/storage_type_probe.py","probe_sha256":"4240d0abc0699c4585c2d059d9786aae501dcdc42979a5e53d499d44bb6b4f1c"}
 ]

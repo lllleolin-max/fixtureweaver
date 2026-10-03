@@ -1,0 +1,15 @@
+{
+  "revision": "ab731fd039cd65a83b035e10e9964fec2ee82b8b",
+  "probe": "probes/storage_type_probe.py",
+  "probe_sha256": "4240d0abc0699c4585c2d059d9786aae501dcdc42979a5e53d499d44bb6b4f1c",
+  "wheel_sha256": "b3ae2d7bedc17a376b8ba388035397460b7aa5d502f61373b79ba7bc2cff6cf7",
+  "archive_installed_source_bytes_equal": true,
+  "source_file_sha256": {
+    "cli.py": "1952e0eaea9d79d6a77616a76d04bce132e98d05a519a12e84e6599eec723a47",
+    "engine.py": "81275dccc38777fc55ada57b94799b7a8eff55bbeb73f22f78976c1b942b50df",
+    "__init__.py": "3cad840688ed45b58fde564df5715ff0604ecf83f0d21d02ad15f547a5e20ac2"
+  },
+  "probe_exit": 0,
+  "probe_stdout": "{\"probe\": \"numeric_real_storage\", \"passed\": true, \"result\": [[\"real\", \"text\", 1]], \"source_unchanged\": true}",
+  "probe_stderr": ""
+}

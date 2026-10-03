@@ -1,0 +1,296 @@
+{
+  "revision": "ab731fd039cd65a83b035e10e9964fec2ee82b8b",
+  "environment": {
+    "os": "nt",
+    "python": "3.14.3",
+    "sqlite": "3.50.4"
+  },
+  "normal_archive_wheel": true,
+  "archive_installed_source_bytes_equal": true,
+  "source_file_sha256": {
+    "cli.py": "1952e0eaea9d79d6a77616a76d04bce132e98d05a519a12e84e6599eec723a47",
+    "engine.py": "81275dccc38777fc55ada57b94799b7a8eff55bbeb73f22f78976c1b942b50df",
+    "__init__.py": "3cad840688ed45b58fde564df5715ff0604ecf83f0d21d02ad15f547a5e20ac2"
+  },
+  "wheel_sha256": "0739ebe7f40bfaececbc1e0c27c2d738c63aea3c2f5b4b4fae8c14b6adebad2d",
+  "test_exit": 0,
+  "archived_test_summary": [
+    "Ran 26 tests in 1.871s",
+    "OK"
+  ],
+  "sdk_and_registered_cli": {
+    "synthetic": true,
+    "sdk_retained_rows": {
+      "account": 1,
+      "line": 2,
+      "orders": 1,
+      "tenant": 1
+    },
+    "source_total_rows": 16,
+    "fixture_total_rows": 5,
+    "closure_added_rows": 3,
+    "consumer_results": [
+      {
+        "name": "checkout",
+        "passed": true,
+        "result": [
+          [
+            120,
+            3,
+            2
+          ]
+        ]
+      }
+    ],
+    "actual_registered_cli_exit": 0,
+    "same_sdk_cli_database_hash": true,
+    "source_sha256_before": "3b0fd2aac77e1dd5a1711dd681b7b413cc36c844962434a18cafec1f81b2fe4e",
+    "source_sha256_after": "3b0fd2aac77e1dd5a1711dd681b7b413cc36c844962434a18cafec1f81b2fe4e",
+    "source_unchanged": true
+  },
+  "contrast": {
+    "synthetic": true,
+    "baseline_definition": "seed row sampling + deterministic independent column masking; closure ablation uses same engine closure with no shared masks",
+    "competitor_execution": false,
+    "cases": [
+      {
+        "case": "checkout_composite_affinity",
+        "source_sha256": "3b0fd2aac77e1dd5a1711dd681b7b413cc36c844962434a18cafec1f81b2fe4e",
+        "same_source_seed_masks_queries": true,
+        "sample_independent": {
+          "source_rows": 16,
+          "retained_rows": 2,
+          "foreign_key_violations": 2,
+          "consumer_queries": [
+            {
+              "name": "checkout",
+              "passed": false,
+              "result": []
+            }
+          ],
+          "usable": false
+        },
+        "closure_independent_ablation": {
+          "source_rows": 16,
+          "retained_rows": 5,
+          "foreign_key_violations": 4,
+          "consumer_queries": [
+            {
+              "name": "checkout",
+              "passed": false,
+              "result": []
+            }
+          ],
+          "usable": false
+        },
+        "closure_shared": {
+          "source_rows": 16,
+          "retained_rows": 5,
+          "closure_added_rows": 3,
+          "foreign_key_violations": 0,
+          "consumer_queries": [
+            {
+              "name": "checkout",
+              "passed": true,
+              "result": [
+                [
+                  120,
+                  3,
+                  2
+                ]
+              ]
+            }
+          ],
+          "usable": true,
+          "source_bytes": 24576,
+          "fixture_bytes": 24576
+        },
+        "source_unchanged": true
+      },
+      {
+        "case": "equal_no_relational_dependency",
+        "source_sha256": "7b6028b4652b03f8bd3e9851438387d0a0fdfac8f0258eaa423773d30b0fcdd9",
+        "same_source_seed_masks_queries": true,
+        "sample_independent": {
+          "source_rows": 2,
+          "retained_rows": 1,
+          "foreign_key_violations": 0,
+          "consumer_queries": [
+            {
+              "name": "count",
+              "passed": true,
+              "result": [
+                [
+                  1,
+                  8
+                ]
+              ]
+            }
+          ],
+          "usable": true
+        },
+        "closure_independent_ablation": {
+          "source_rows": 2,
+          "retained_rows": 1,
+          "foreign_key_violations": 0,
+          "consumer_queries": [
+            {
+              "name": "count",
+              "passed": true,
+              "result": [
+                [
+                  1,
+                  8
+                ]
+              ]
+            }
+          ],
+          "usable": true
+        },
+        "closure_shared": {
+          "source_rows": 2,
+          "retained_rows": 1,
+          "closure_added_rows": 0,
+          "foreign_key_violations": 0,
+          "consumer_queries": [
+            {
+              "name": "count",
+              "passed": true,
+              "result": [
+                [
+                  1,
+                  8
+                ]
+              ]
+            }
+          ],
+          "usable": true,
+          "source_bytes": 8192,
+          "fixture_bytes": 8192
+        },
+        "source_unchanged": true
+      },
+      {
+        "case": "adverse_full_chain_retention",
+        "source_sha256": "18907344def9b17aca69e6cc425bf551902436c1562f00160564d1b2b9e480af",
+        "same_source_seed_masks_queries": true,
+        "sample_independent": {
+          "source_rows": 20,
+          "retained_rows": 1,
+          "foreign_key_violations": 1,
+          "consumer_queries": [
+            {
+              "name": "complete_chain",
+              "passed": false,
+              "result": [
+                [
+                  1
+                ]
+              ]
+            }
+          ],
+          "usable": false
+        },
+        "closure_independent_ablation": {
+          "source_rows": 20,
+          "retained_rows": 20,
+          "foreign_key_violations": 19,
+          "consumer_queries": [
+            {
+              "name": "complete_chain",
+              "passed": true,
+              "result": [
+                [
+                  20
+                ]
+              ]
+            }
+          ],
+          "usable": false
+        },
+        "closure_shared": {
+          "source_rows": 20,
+          "retained_rows": 20,
+          "closure_added_rows": 19,
+          "foreign_key_violations": 0,
+          "consumer_queries": [
+            {
+              "name": "complete_chain",
+              "passed": true,
+              "result": [
+                [
+                  20
+                ]
+              ]
+            }
+          ],
+          "usable": true,
+          "source_bytes": 8192,
+          "fixture_bytes": 8192
+        },
+        "source_unchanged": true
+      }
+    ],
+    "adverse_closure_bound": "CLOSURE_LIMIT"
+  },
+  "probes": {
+    "protected_affinity_probe.py": {
+      "probe": "protected_affinity",
+      "passed": true,
+      "result": [
+        [
+          1,
+          "1.0",
+          "integer",
+          "text"
+        ]
+      ]
+    },
+    "rowid_probe.py": {
+      "probe": "rowid_consumer",
+      "passed": true,
+      "result": [
+        [
+          42,
+          "retained"
+        ]
+      ]
+    },
+    "scalar_probe.py": {
+      "probe": "adversarial_scalars",
+      "passed": true,
+      "observed": {
+        "cli": {
+          "passed": true,
+          "exit": 2,
+          "traceback_present": false
+        },
+        "sdk": {
+          "passed": true,
+          "code": "MASK_TYPE"
+        },
+        "source_unchanged": true,
+        "no_destination": true
+      }
+    },
+    "storage_type_probe.py": {
+      "probe": "numeric_real_storage",
+      "passed": true,
+      "result": [
+        [
+          "real",
+          "text",
+          1
+        ]
+      ],
+      "source_unchanged": true
+    },
+    "work_bound_probe.py": {
+      "probe": "cumulative_vm_budget",
+      "passed": true,
+      "error": "WORK_LIMIT",
+      "source_unchanged": true,
+      "no_destination": true
+    }
+  }
+}

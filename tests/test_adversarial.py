@@ -41,6 +41,13 @@ class AdversarialTests(unittest.TestCase):
         self.database("CREATE TABLE p(a TEXT UNIQUE); CREATE TABLE q(b TEXT COLLATE NOCASE); INSERT INTO p VALUES('A'),('a'); INSERT INTO q VALUES('A');")
         self.refusal({"seeds": [{"table": "p"},{"table": "q"}], "masks": [{"name": "id", "columns": [["p","a"],["q","b"]]}]}, "MASK_CONSTRAINT")
 
+    def test_schema_conflict_policy_cannot_drop_retained_rows(self):
+        for policy in ("REPLACE", "IGNORE", "FAIL"):
+            with self.subTest(policy=policy):
+                self.source.unlink(missing_ok=True)
+                self.database(f"CREATE TABLE p(a TEXT UNIQUE ON CONFLICT {policy}); CREATE TABLE q(b TEXT COLLATE NOCASE); INSERT INTO p VALUES('A'),('a'); INSERT INTO q VALUES('A');")
+                self.refusal({"seeds": [{"table": "p"},{"table": "q"}], "masks": [{"name": "id", "columns": [["p","a"],["q","b"]]}]}, "MASK_CONSTRAINT")
+
     def test_protected_value_colliding_with_generated_mask(self):
         self.database("CREATE TABLE p(id TEXT UNIQUE); INSERT INTO p VALUES('alpha');")
         plan = {"seeds": [{"table": "p"}], "masks": [{"name": "id", "columns": [["p","id"]]}]}

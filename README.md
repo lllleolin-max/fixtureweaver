@@ -18,7 +18,7 @@ python examples/contrast.py
 python -m unittest discover -s tests -v
 ```
 
-The demo exercises the installed SDK **and actual registered console executable**, located through the same interpreter's `sysconfig.get_path('scripts')`. Its synthetic checkout retains **5 of 16 rows**, adds 3 dependency rows, passes query `[[120,3,2]]`, preserves source bytes, and produces the same SDK/CLI fixture hash. The tiny database occupies **24,576 bytes both before and after**: disk savings and runtime savings are not established. [Full measured receipt](docs/evidence/release/4bfbfadd19bd.json).
+The demo exercises the installed SDK **and actual registered console executable**, located through the same interpreter's `sysconfig.get_path('scripts')`. Its synthetic checkout retains **5 of 16 rows**, adds 3 dependency rows, passes query `[[120,3,2]]`, preserves source bytes, and produces the same SDK/CLI fixture hash. The tiny database occupies **24,576 bytes both before and after**: disk savings and runtime savings are not established. [Full measured receipt](docs/evidence/release/ab731fd039cd.json).
 
 ## SDK and plan
 
@@ -79,7 +79,7 @@ Autoincrement sequences are rebuilt by retained inserts; SQLite statistics, appl
 
 ## Verification and pilot
 
-[ITERATIONS.md](docs/ITERATIONS.md) records **four** real post-initial correction cycles, each with direct-parent SHAs, an unchanged fail→pass archive-wheel probe and actual logs. Replay: `python tools/verify_history.py`; provenance-only check: add `--records-only`. Fresh full normal archive-wheel check: `python tools/verify_release.py HEAD --out .artifacts/final`.
+[ITERATIONS.md](docs/ITERATIONS.md) records **five** real post-initial correction cycles, each with direct-parent SHAs, an unchanged fail→pass archive-wheel probe and actual logs. Replay: `python tools/verify_history.py`; provenance-only check: add `--records-only`. Fresh full normal archive-wheel check: `python tools/verify_release.py HEAD --out .artifacts/final`.
 
 The suite includes an independent recursive SQLite CTE oracle over 32 small cyclic graphs and adversarial key/mask/constraint/source/budget/console cases. [Architecture](docs/ARCHITECTURE.md), [security](SECURITY.md), [contributing](CONTRIBUTING.md) and [pilot rationale](docs/PILOT.md) describe boundaries. CI covers Ubuntu/Windows × Python 3.11/3.14; checked-in YAML alone does not prove remote success. No customers, revenue or measured production savings are claimed. MIT licensed.
 

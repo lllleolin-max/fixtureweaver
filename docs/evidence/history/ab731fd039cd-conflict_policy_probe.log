@@ -1,0 +1,39 @@
+$ <history-temp>\env\Scripts\python.exe -m pip wheel <history-temp>\source --no-deps --wheel-dir <history-temp>\wheels
+Processing <user>\appdata\local\temp\fixtureweaver-history-_aa1t1z0\source
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: fixtureweaver
+  Building wheel for fixtureweaver (pyproject.toml): started
+  Building wheel for fixtureweaver (pyproject.toml): finished with status 'done'
+  Created wheel for fixtureweaver: filename=fixtureweaver-0.1.0-py3-none-any.whl size=17895 sha256=b66018061d5a0349d9b167651b652c06acc06e1c8536067b29322ee05687b7ca
+  Stored in directory: <user>\AppData\Local\Temp\pip-ephem-wheel-cache-a8998g4z\wheels\65\44\3e\4f1ad1dce13615f07cf0b03c6be8dd02491381d30442c1a227
+Successfully built fixtureweaver
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: <history-temp>\env\Scripts\python.exe -m pip install --upgrade pip
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe -m pip install --no-deps <history-temp>\wheels\fixtureweaver-0.1.0-py3-none-any.whl
+Processing <user>\appdata\local\temp\fixtureweaver-history-_aa1t1z0\wheels\fixtureweaver-0.1.0-py3-none-any.whl
+Installing collected packages: fixtureweaver
+Successfully installed fixtureweaver-0.1.0
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: <history-temp>\env\Scripts\python.exe -m pip install --upgrade pip
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe -c import fixtureweaver,pathlib,json,hashlib; p=pathlib.Path(fixtureweaver.__file__).parent; print(json.dumps({f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(p.glob('*.py'))}))
+{"__init__.py": "3cad840688ed45b58fde564df5715ff0604ecf83f0d21d02ad15f547a5e20ac2", "cli.py": "1952e0eaea9d79d6a77616a76d04bce132e98d05a519a12e84e6599eec723a47", "engine.py": "81275dccc38777fc55ada57b94799b7a8eff55bbeb73f22f78976c1b942b50df"}
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe <repo>\probes\conflict_policy_probe.py
+{"probe": "schema_conflict_policy", "passed": false, "reported_retained": 2, "actual_retained": 1, "source_unchanged": true}
+
+exit=1

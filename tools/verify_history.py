@@ -7,9 +7,11 @@ import tempfile
 from archive_probe import ROOT, check_revision, sha256
 
 
-def verify(records_only=False):
+def verify(records_only=False, selected_round=None):
     rounds=json.loads((ROOT/"docs/history.json").read_text(encoding="utf-8"))
     for row in rounds:
+        if selected_round is not None and row["round"] != selected_round:
+            continue
         parent=subprocess.check_output(["git","rev-parse",row["after"]+"^"],cwd=ROOT,text=True).strip()
         if parent!=row["before"]:
             raise RuntimeError("Correction is not a direct-parent commit")
@@ -37,5 +39,6 @@ def verify(records_only=False):
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
     parser.add_argument("--records-only",action="store_true")
+    parser.add_argument("--round",type=int,choices=range(1,6))
     args=parser.parse_args()
-    raise SystemExit(verify(args.records_only))
+    raise SystemExit(verify(args.records_only,args.round))

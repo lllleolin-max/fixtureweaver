@@ -502,7 +502,9 @@ def weave(source: str | Path, destination: str | Path, plan: dict) -> dict:
         for name, table in tables.items():
             insertion_columns = table.locator + table.columns if table.rowid and table.rowid_key is None else table.columns
             placeholders = ",".join("?" for _ in insertion_columns)
-            statement = f"INSERT INTO {quote(name)} ({','.join(quote(c) for c in insertion_columns)}) VALUES ({placeholders}) RETURNING {','.join('typeof('+quote(c)+')' for c in table.columns)}"
+            # Override schema REPLACE/IGNORE policies during fixture construction:
+            # a candidate collision must refuse, never silently drop retained rows.
+            statement = f"INSERT OR ABORT INTO {quote(name)} ({','.join(quote(c) for c in insertion_columns)}) VALUES ({placeholders}) RETURNING {','.join('typeof('+quote(c)+')' for c in table.columns)}"
             for identity, values in retained[name].items():
                 data = [changes.get((name, identity, column), values[column]) for column in table.columns]
                 if table.rowid and table.rowid_key is None:
@@ -525,13 +527,17 @@ def weave(source: str | Path, destination: str | Path, plan: dict) -> dict:
             raise FixtureError("MASK_CONSTRAINT", "Output foreign key check failed", table=violations[0][0], fk=violations[0][3])
         if output.execute("PRAGMA integrity_check").fetchone() != ("ok",):
             raise FixtureError("INTEGRITY", "Output integrity check failed")
+        for name, rows in retained.items():
+            actual_count = output.execute(f"SELECT count(*) FROM {quote(name)}").fetchone()[0]
+            if actual_count != len(rows):
+                raise FixtureError("ROW_INVARIANT", "Materialized row count differs from retained dependency closure", table=name, expected=len(rows), actual=actual_count)
         query_results = _queries(output, plan.get("queries", []), limits["query_rows"])
         output.close()
         output = None
         final_digest = fingerprint(source)
         if final_digest != initial_digest:
             raise FixtureError("SOURCE_CHANGED", "Source bytes changed during build; use a quiescent exported copy")
-        report = {"format": "fixtureweaver/1", "source_sha256": initial_digest, "source_unchanged": True, "source_bytes": source.stat().st_size, "fixture_sha256": fingerprint(temporary), "fixture_bytes": temporary.stat().st_size, "source_rows": counts, "retained_rows": {name: len(rows) for name, rows in retained.items()}, "seed_rows": seed_count, "closure_added_rows": total - seed_count, "dependency_edges": edges, "masked_classes": mask_summary, "queries": query_results, "checks": {"foreign_keys": True, "integrity": True}, "sqlite_version": sqlite3.sqlite_version, "vm_progress_callbacks": budget.used, "limits": limits}
+        report = {"format": "fixtureweaver/1", "source_sha256": initial_digest, "source_unchanged": True, "source_bytes": source.stat().st_size, "fixture_sha256": fingerprint(temporary), "fixture_bytes": temporary.stat().st_size, "source_rows": counts, "retained_rows": {name: len(rows) for name, rows in retained.items()}, "seed_rows": seed_count, "closure_added_rows": total - seed_count, "dependency_edges": edges, "masked_classes": mask_summary, "queries": query_results, "checks": {"foreign_keys": True, "integrity": True, "retained_row_counts": True}, "sqlite_version": sqlite3.sqlite_version, "vm_progress_callbacks": budget.used, "limits": limits}
         # Hard-link publication is atomic and refuses a concurrently created destination.
         os.link(temporary, destination)
         return report
