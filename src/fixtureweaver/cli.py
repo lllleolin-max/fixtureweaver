@@ -36,6 +36,8 @@ def load_plan(path: str) -> dict:
         raise FixtureError("PLAN", "JSON plan exceeds 1 MiB input budget")
     try:
         return json.loads(plan_path.read_text(encoding="utf-8"), object_pairs_hook=no_duplicates, parse_constant=no_constant, parse_int=bounded_integer, parse_float=finite_real)
+    except FixtureError:
+        raise
     except (ValueError, RecursionError) as error:
         raise FixtureError("PLAN", "Malformed or excessively nested JSON plan") from error
 

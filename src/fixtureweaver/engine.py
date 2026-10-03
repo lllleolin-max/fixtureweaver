@@ -88,11 +88,11 @@ class Budget:
         self.maximum, self.used = maximum, 0
 
     def callback(self) -> int:
-        self.used += 100
+        self.used += 1
         return int(self.used > self.maximum)
 
     def attach(self, connection: sqlite3.Connection) -> None:
-        connection.set_progress_handler(self.callback, 100)
+        connection.set_progress_handler(self.callback, 1)
 
 
 class DisjointSet:
@@ -152,7 +152,7 @@ def _validate_plan(plan: dict) -> dict:
         raise FixtureError("PLAN", "At least one nonempty seed selection is required")
     if not isinstance(plan.get("salt", "fixtureweaver-demo"), str) or not plan.get("salt", "fixtureweaver-demo"):
         raise FixtureError("PLAN", "salt must be a nonempty string")
-    limits = {"rows": 10000, "cells": 50000, "steps": 10000000, "source_bytes": 128 * 1024 * 1024, "query_rows": 1000}
+    limits = {"rows": 10000, "cells": 50000, "steps": 10000000, "source_bytes": 128 * 1024 * 1024, "query_rows": 1000, "value_bytes": 1024 * 1024}
     supplied = plan.get("limits", {})
     if not isinstance(supplied, dict) or set(supplied) - set(limits):
         raise FixtureError("PLAN", "Unknown or malformed limits")
@@ -163,8 +163,15 @@ def _validate_plan(plan: dict) -> dict:
     return limits
 
 
-def _schema(db: sqlite3.Connection) -> tuple[dict[str, Table], list[ForeignKey], list[str], list[str]]:
-    objects = db.execute("SELECT type,name,tbl_name,sql FROM sqlite_schema WHERE name NOT LIKE 'sqlite_%' ORDER BY name COLLATE BINARY").fetchall()
+def _connection_limits(db, budget, limits):
+    budget.attach(db)
+    db.setlimit(sqlite3.SQLITE_LIMIT_LENGTH, min(limits["value_bytes"], 2 ** 31 - 1))
+    db.setlimit(sqlite3.SQLITE_LIMIT_SQL_LENGTH, 1024 * 1024)
+    db.setlimit(sqlite3.SQLITE_LIMIT_ATTACHED, 0)
+
+
+def _schema(db: sqlite3.Connection, budget, limits) -> tuple[dict[str, Table], list[ForeignKey], list[str], list[str]]:
+    objects = db.execute("SELECT type,name,tbl_name,sql FROM sqlite_schema WHERE lower(substr(name,1,7)) <> 'sqlite_' ORDER BY name COLLATE BINARY").fetchall()
     tables, indexes, views = {}, [], []
     for kind, name, _, sql in objects:
         if kind == "trigger":
@@ -195,12 +202,14 @@ def _schema(db: sqlite3.Connection) -> tuple[dict[str, Table], list[ForeignKey],
     # Prepare a schema clone: SQLite detects custom collations/functions and malformed key models.
     scratch = sqlite3.connect(":memory:")
     try:
+        _connection_limits(scratch, budget, limits)
         for table in tables.values():
             scratch.execute(table.sql)
         for sql in indexes + views:
             scratch.execute(sql)
     except sqlite3.Error as error:
-        raise FixtureError("UNSUPPORTED", "Schema needs unavailable collation/function or cannot be reproduced", detail=str(error)) from error
+        code = "WORK_LIMIT" if "interrupted" in str(error) else "UNSUPPORTED"
+        raise FixtureError(code, "Schema needs unavailable collation/function or cannot be reproduced within work limits", detail=str(error)) from error
     finally:
         scratch.close()
     keys = []
@@ -222,7 +231,8 @@ def _schema(db: sqlite3.Connection) -> tuple[dict[str, Table], list[ForeignKey],
     try:
         issues = db.execute("PRAGMA foreign_key_check").fetchmany(2)
     except sqlite3.Error as error:
-        raise FixtureError("KEY_MODEL", "SQLite rejected the declared foreign-key model", detail=str(error)) from error
+        code = "WORK_LIMIT" if "interrupted" in str(error) else "KEY_MODEL"
+        raise FixtureError(code, "SQLite rejected the declared foreign-key model or its work bound", detail=str(error)) from error
     if issues:
         raise FixtureError("DANGLING", "Source has foreign-key violations; repair the source before reduction", table=issues[0][0], fk=issues[0][3])
     integrity = db.execute("PRAGMA integrity_check").fetchone()
@@ -316,11 +326,12 @@ def _masks(db, tables, keys, retained, classes, protect, salt, limits):
             identity, _ = tables[table].unpack(row)
             if identity in retained[table]:
                 protected.add((table, identity, column))
-    changes, summaries = {}, []
+    changes, summaries, total_cells = {}, [], 0
     for name, columns in sorted(classes.items()):
         cells = {(table, identity, column): values[column] for table, column in sorted(columns) for identity, values in retained[table].items() if values[column] is not None}
-        if len(cells) > limits["cells"]:
-            raise FixtureError("CELL_LIMIT", "Masked class exceeds cell budget", class_name=name, limit=limits["cells"])
+        total_cells += len(cells)
+        if total_cells > limits["cells"]:
+            raise FixtureError("CELL_LIMIT", "Total masked occurrences exceed the build cell budget", class_name=name, limit=limits["cells"])
         dsu = DisjointSet(cells)
         # Compare parameters on the *column* side, so its affinity and collation apply.
         for cell, value in cells.items():
@@ -376,9 +387,13 @@ def _queries(db, queries, maximum):
             if not isinstance(name, str) or name in names:
                 raise FixtureError("PLAN", "Consumer query names must be unique strings")
             names.add(name)
+            if not isinstance(query["sql"], str) or not isinstance(query.get("params", []), list) or not isinstance(query["expect"], list) or not all(isinstance(row, list) for row in query["expect"]):
+                raise FixtureError("PLAN", "Query sql must be text; params and expected rows must be arrays", query=name)
             actual = [list(row) for row in db.execute(query["sql"], query.get("params", [])).fetchmany(maximum + 1)]
             if len(actual) > maximum:
                 raise FixtureError("QUERY_LIMIT", "Consumer result exceeds query row limit", query=name)
+            if any(isinstance(value, bytes) or type(value) is float and not math.isfinite(value) for row in actual for value in row):
+                raise FixtureError("QUERY_VALUE", "Consumer output must be finite JSON scalar values; use hex() for BLOB columns", query=name)
             if actual != query["expect"]:
                 raise FixtureError("CONSUMER_QUERY", "Consumer query expectation changed; adjust seeds, protected values or expectations", query=name, expected=query["expect"], actual=actual)
             output.append({"name": name, "passed": True, "result": actual})
@@ -394,6 +409,8 @@ def weave(source: str | Path, destination: str | Path, plan: dict) -> dict:
     Constraints and declared queries are verified by the host SQLite library.
     """
     limits = _validate_plan(plan)
+    if Path(destination).is_symlink():
+        raise FixtureError("DESTINATION", "Destination must be a new file, not a symlink")
     source, destination = Path(source).resolve(), Path(destination).resolve()
     if source == destination or destination.exists():
         raise FixtureError("DESTINATION", "Destination must be a new, separate file")
@@ -407,15 +424,17 @@ def weave(source: str | Path, destination: str | Path, plan: dict) -> dict:
     budget = Budget(limits["steps"])
     db, output, temporary = None, None, None
     try:
+        if sqlite3.sqlite_version_info < (3, 37, 0):
+            raise FixtureError("SQLITE", "SQLite 3.37+ is required for table model inspection")
         db = sqlite3.connect(source.as_uri() + "?mode=ro", uri=True, timeout=0.2)
         db.execute("PRAGMA foreign_keys=ON")
         if db.execute("PRAGMA foreign_keys").fetchone() != (1,):
             raise FixtureError("SQLITE", "SQLite foreign key enforcement is unavailable")
         if db.execute("PRAGMA journal_mode").fetchone()[0].lower() == "wal":
             raise FixtureError("QUIESCENT", "WAL-mode sources are outside the single-file contract; export a DELETE-mode copy")
-        budget.attach(db)
+        _connection_limits(db, budget, limits)
         db.execute("BEGIN")
-        tables, keys, indexes, views = _schema(db)
+        tables, keys, indexes, views = _schema(db, budget, limits)
         counts = {name: db.execute(f"SELECT count(*) FROM {quote(name)}").fetchone()[0] for name in tables}
         classes = _class_columns(plan.get("masks", []), tables, keys)
         retained = {name: {} for name in tables}
@@ -466,7 +485,7 @@ def weave(source: str | Path, destination: str | Path, plan: dict) -> dict:
         os.close(fd)
         temporary = Path(temp_name)
         output = sqlite3.connect(temporary)
-        budget.attach(output)
+        _connection_limits(output, budget, limits)
         output.execute("PRAGMA foreign_keys=ON")
         if output.execute("PRAGMA foreign_keys").fetchone() != (1,):
             raise FixtureError("SQLITE", "Output SQLite foreign key enforcement is unavailable")
@@ -503,7 +522,7 @@ def weave(source: str | Path, destination: str | Path, plan: dict) -> dict:
         final_digest = fingerprint(source)
         if final_digest != initial_digest:
             raise FixtureError("SOURCE_CHANGED", "Source bytes changed during build; use a quiescent exported copy")
-        report = {"format": "fixtureweaver/1", "source_sha256": initial_digest, "source_unchanged": True, "source_bytes": source.stat().st_size, "fixture_sha256": fingerprint(temporary), "fixture_bytes": temporary.stat().st_size, "source_rows": counts, "retained_rows": {name: len(rows) for name, rows in retained.items()}, "seed_rows": seed_count, "closure_added_rows": total - seed_count, "dependency_edges": edges, "masked_classes": mask_summary, "queries": query_results, "checks": {"foreign_keys": True, "integrity": True}, "sqlite_version": sqlite3.sqlite_version, "vm_steps_upper_counter": budget.used}
+        report = {"format": "fixtureweaver/1", "source_sha256": initial_digest, "source_unchanged": True, "source_bytes": source.stat().st_size, "fixture_sha256": fingerprint(temporary), "fixture_bytes": temporary.stat().st_size, "source_rows": counts, "retained_rows": {name: len(rows) for name, rows in retained.items()}, "seed_rows": seed_count, "closure_added_rows": total - seed_count, "dependency_edges": edges, "masked_classes": mask_summary, "queries": query_results, "checks": {"foreign_keys": True, "integrity": True}, "sqlite_version": sqlite3.sqlite_version, "vm_progress_callbacks": budget.used, "limits": limits}
         # Hard-link publication is atomic and refuses a concurrently created destination.
         os.link(temporary, destination)
         return report
@@ -512,7 +531,7 @@ def weave(source: str | Path, destination: str | Path, plan: dict) -> dict:
     except sqlite3.Error as error:
         code = "WORK_LIMIT" if "interrupted" in str(error) else "SQLITE"
         raise FixtureError(code, "SQLite refused the operation; check the plan/schema or increase an explicit work bound", detail=str(error)) from error
-    except (OSError, TypeError, OverflowError) as error:
+    except (OSError, TypeError, OverflowError, UnicodeError, RecursionError) as error:
         raise FixtureError("INPUT_IO", "Could not complete the fixture operation", detail=str(error)) from error
     finally:
         if output is not None:
