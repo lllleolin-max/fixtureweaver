@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fixtureweaver"
+version = "0.1.0"
+description = "Bounded relation-preserving reduced SQLite test fixtures"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "lllleolin-max"}]
+dependencies = []
+
+[project.scripts]
+fixtureweaver = "fixtureweaver.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
