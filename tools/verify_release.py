@@ -13,7 +13,7 @@ import venv
 from archive_probe import ROOT, capture, sha256
 
 
-def verify(revision):
+def verify(revision, output_directory="docs/evidence/release"):
     sha=subprocess.check_output(["git","rev-parse",revision],cwd=ROOT,text=True).strip()
     log=[]
     with tempfile.TemporaryDirectory(prefix="fixtureweaver-release-") as temporary:
@@ -54,7 +54,7 @@ def verify(revision):
                 raise RuntimeError("Final probe failed: "+path.name)
             probes[path.name]=json.loads(process.stdout)
         summary={"revision":sha,"environment":{"os":os.name,"python":receipt["python"],"sqlite":receipt["sqlite"]},"normal_archive_wheel":True,"archive_installed_source_bytes_equal":True,"source_file_sha256":archived,"wheel_sha256":sha256(wheel.read_bytes()),"test_exit":tests.returncode,"archived_test_summary":[line for line in tests.stderr.splitlines() if line.startswith('Ran ') or line=='OK'],"sdk_and_registered_cli":json.loads(demonstration.stdout),"contrast":json.loads(contrast.stdout),"probes":probes}
-    destination=ROOT/"docs/evidence/release"
+    destination=ROOT/output_directory
     destination.mkdir(parents=True,exist_ok=True)
     (destination/(sha[:12]+".json")).write_text(json.dumps(summary,indent=2)+"\n",encoding="utf-8")
     (destination/(sha[:12]+".log")).write_text("\n".join(log),encoding="utf-8")
@@ -65,5 +65,6 @@ def verify(revision):
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
     parser.add_argument("revision",nargs="?",default="HEAD")
+    parser.add_argument("--out",default="docs/evidence/release")
     args=parser.parse_args()
-    verify(args.revision)
+    verify(args.revision,args.out)

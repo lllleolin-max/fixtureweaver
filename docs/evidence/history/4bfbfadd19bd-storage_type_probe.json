@@ -1,0 +1,15 @@
+{
+  "revision": "4bfbfadd19bdeef6537005befa020aca97095fad",
+  "probe": "probes/storage_type_probe.py",
+  "probe_sha256": "4240d0abc0699c4585c2d059d9786aae501dcdc42979a5e53d499d44bb6b4f1c",
+  "wheel_sha256": "c078eeb724d434a45e336d43fc2d549ad9496aba0dfc7a1d5b0d37a491cd09b1",
+  "archive_installed_source_bytes_equal": true,
+  "source_file_sha256": {
+    "cli.py": "1952e0eaea9d79d6a77616a76d04bce132e98d05a519a12e84e6599eec723a47",
+    "engine.py": "a1b85944fb90f60cc7978e65a2c1fdcc4fa77897f9efa924751519e56f93a084",
+    "__init__.py": "3cad840688ed45b58fde564df5715ff0604ecf83f0d21d02ad15f547a5e20ac2"
+  },
+  "probe_exit": 1,
+  "probe_stdout": "{\"probe\": \"numeric_real_storage\", \"passed\": false, \"error\": {\"code\": \"CONSUMER_QUERY\", \"message\": \"Consumer query expectation changed; adjust seeds, protected values or expectations\", \"witness\": {\"query\": \"storage\", \"expected\": [[\"real\", \"text\", 1]], \"actual\": [[\"integer\", \"text\", 1]]}}}",
+  "probe_stderr": ""
+}

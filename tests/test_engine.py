@@ -101,6 +101,11 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual(before, self.source.read_bytes())
         self.assertFalse(self.output.exists())
 
+    def test_numeric_real_masks_keep_actual_storage_class(self):
+        self.database("CREATE TABLE p(id NUMERIC UNIQUE); CREATE TABLE c(id INTEGER PRIMARY KEY,p TEXT REFERENCES p(id)); INSERT INTO p VALUES(1.5); INSERT INTO c VALUES(1,'1.50');")
+        report = weave(self.source,self.output,{"seeds":[{"table":"c"}],"masks":[{"name":"id","columns":[["p","id"]]}],"queries":[{"name":"types","sql":"SELECT typeof(p.id),typeof(c.p),count(*) FROM c JOIN p ON p.id=c.p","expect":[["real","text",1]]}]})
+        self.assertTrue(report["queries"][0]["passed"])
+
 
 if __name__ == "__main__":
     unittest.main()

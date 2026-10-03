@@ -301,7 +301,7 @@ def _class_columns(masks: list, tables: dict, keys: list) -> dict[str, set]:
     return classes
 
 
-def _token(value, token: int, blob: bytes, numeric: bool):
+def _token(value, token: int | float, blob: bytes, numeric: bool):
     if isinstance(value, bytes):
         return blob[:16]
     if type(value) is int:
@@ -360,6 +360,10 @@ def _masks(db, tables, keys, retained, classes, protect, salt, limits):
             identity = min(encoded(v) for v in values)
             digest = hmac.new(salt.encode("utf-8"), (name + "\0" + identity).encode("utf-8"), hashlib.sha256).digest()
             token = 100000 + int.from_bytes(digest[:6], "big")
+            if float in storage and int not in storage:
+                # NUMERIC/INTEGER affinity would convert an integral REAL token
+                # to INTEGER. This quarter fraction is exactly representable.
+                token += 0.25
             numeric = bool(storage & {int, float})
             for cell in members:
                 old = cells[cell]
@@ -498,13 +502,18 @@ def weave(source: str | Path, destination: str | Path, plan: dict) -> dict:
         for name, table in tables.items():
             insertion_columns = table.locator + table.columns if table.rowid and table.rowid_key is None else table.columns
             placeholders = ",".join("?" for _ in insertion_columns)
-            statement = f"INSERT INTO {quote(name)} ({','.join(quote(c) for c in insertion_columns)}) VALUES ({placeholders})"
+            statement = f"INSERT INTO {quote(name)} ({','.join(quote(c) for c in insertion_columns)}) VALUES ({placeholders}) RETURNING {','.join('typeof('+quote(c)+')' for c in table.columns)}"
             for identity, values in retained[name].items():
                 data = [changes.get((name, identity, column), values[column]) for column in table.columns]
                 if table.rowid and table.rowid_key is None:
                     data = list(identity) + data
                 try:
-                    output.execute(statement, data)
+                    actual_types = output.execute(statement, data).fetchone()
+                    expected_types = tuple("null" if values[c] is None else {int:"integer",float:"real",str:"text",bytes:"blob"}[type(values[c])] for c in table.columns)
+                    if actual_types != expected_types:
+                        column = next(c for c,a,b in zip(table.columns,actual_types,expected_types) if a != b)
+                        index = table.columns.index(column)
+                        raise FixtureError("MASK_TYPE", "SQLite affinity changed stored type during masking; adjust domains or protect this class", table=name, column=column, expected_type=expected_types[index], actual_type=actual_types[index])
                 except sqlite3.IntegrityError as error:
                     raise FixtureError("MASK_CONSTRAINT", "Mask/protected values violate a SQLite UNIQUE/CHECK/NOT NULL constraint; change class/protection/schema", table=name, detail=str(error)) from error
         try:
