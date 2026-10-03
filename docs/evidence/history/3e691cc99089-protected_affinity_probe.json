@@ -1,0 +1,15 @@
+{
+  "revision": "3e691cc99089091e7d19ab4377ec9893c7eb4e51",
+  "probe": "probes/protected_affinity_probe.py",
+  "probe_sha256": "2f464871c8c89f1e58395d0a18a71e6bf110f5d4ee554239823cb55060913548",
+  "wheel_sha256": "28ab12ff578dc160f9779473194a436ea685d6cb837998e1ff03cb4a9a8f5f4d",
+  "archive_installed_source_bytes_equal": true,
+  "source_file_sha256": {
+    "cli.py": "ef265161c59f95a0944ddb8164303a18ec836ee470cb46e280fb5d01f249bb3b",
+    "engine.py": "d3406a72e5a4bf68a68985f0511483c9ed872e1500935fa13370c83c03315c9e",
+    "__init__.py": "bb56833ea35274affe16d70a7db18ffac6e986957ea021cd3eadd672a3dd9b79"
+  },
+  "probe_exit": 0,
+  "probe_stdout": "{\"probe\": \"protected_affinity\", \"passed\": true, \"result\": [[1, \"1.0\", \"integer\", \"text\"]]}",
+  "probe_stderr": ""
+}

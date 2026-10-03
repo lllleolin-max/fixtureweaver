@@ -1,0 +1,15 @@
+{
+  "revision": "3e691cc99089091e7d19ab4377ec9893c7eb4e51",
+  "probe": "probes/scalar_probe.py",
+  "probe_sha256": "1a1cf2ea62b29bf903fada6c69b7a5669798e122ee5f27fc0216f79567b60c4e",
+  "wheel_sha256": "49f5173aa99bdcf132712bb570803fecd2217614b7e8d96e1376f8277feeab3b",
+  "archive_installed_source_bytes_equal": true,
+  "source_file_sha256": {
+    "cli.py": "ef265161c59f95a0944ddb8164303a18ec836ee470cb46e280fb5d01f249bb3b",
+    "engine.py": "d3406a72e5a4bf68a68985f0511483c9ed872e1500935fa13370c83c03315c9e",
+    "__init__.py": "bb56833ea35274affe16d70a7db18ffac6e986957ea021cd3eadd672a3dd9b79"
+  },
+  "probe_exit": 1,
+  "probe_stdout": "{\"probe\": \"adversarial_scalars\", \"passed\": false, \"observed\": {\"cli\": {\"passed\": false, \"exit\": 1, \"traceback_present\": true}, \"sdk\": {\"passed\": false, \"escaped_exception\": \"ValueError\"}, \"source_unchanged\": true, \"no_destination\": true}}",
+  "probe_stderr": ""
+}

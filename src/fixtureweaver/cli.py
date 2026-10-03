@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 import sys
 
@@ -18,7 +19,25 @@ def load_plan(path: str) -> dict:
         return result
     def no_constant(value):
         raise FixtureError("PLAN", "Nonfinite JSON number", value=value)
-    return json.loads(Path(path).read_text(encoding="utf-8"), object_pairs_hook=no_duplicates, parse_constant=no_constant)
+    def bounded_integer(value):
+        if len(value.lstrip("-")) > 19:
+            raise FixtureError("PLAN", "JSON integers must fit SQLite signed 64-bit storage")
+        parsed = int(value)
+        if not -(2 ** 63) <= parsed < 2 ** 63:
+            raise FixtureError("PLAN", "JSON integers must fit SQLite signed 64-bit storage")
+        return parsed
+    def finite_real(value):
+        parsed = float(value)
+        if not math.isfinite(parsed):
+            raise FixtureError("PLAN", "JSON REAL numbers must be finite")
+        return parsed
+    plan_path = Path(path)
+    if plan_path.stat().st_size > 1024 * 1024:
+        raise FixtureError("PLAN", "JSON plan exceeds 1 MiB input budget")
+    try:
+        return json.loads(plan_path.read_text(encoding="utf-8"), object_pairs_hook=no_duplicates, parse_constant=no_constant, parse_int=bounded_integer, parse_float=finite_real)
+    except (ValueError, RecursionError) as error:
+        raise FixtureError("PLAN", "Malformed or excessively nested JSON plan") from error
 
 
 def main(argv=None) -> int:

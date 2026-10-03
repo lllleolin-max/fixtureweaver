@@ -90,6 +90,17 @@ class FixtureTests(unittest.TestCase):
         report = weave(self.source, self.output, {"seeds": [{"table": "c"}], "masks": [{"name": "id", "columns": [["p", "id"]]}], "protect": [{"table": "c", "column": "p"}], "queries": [{"name": "representations", "sql": "SELECT p.id,c.p FROM c JOIN p ON p.id=c.p", "expect": [[1.5,"1.50"]]}]})
         self.assertEqual(report["masked_classes"][0]["pinned_equivalence_classes"], 1)
 
+    def test_nonfinite_stored_identifier_refuses_cleanly(self):
+        self.database("CREATE TABLE p(id REAL UNIQUE);")
+        with closing(sqlite3.connect(self.source)) as db, db:
+            db.execute("INSERT INTO p VALUES(?)", (float("inf"),))
+        before = self.source.read_bytes()
+        with self.assertRaises(FixtureError) as error:
+            weave(self.source, self.output, {"seeds": [{"table": "p"}], "masks": [{"name": "id", "columns": [["p", "id"]]}]})
+        self.assertEqual(error.exception.code, "MASK_TYPE")
+        self.assertEqual(before, self.source.read_bytes())
+        self.assertFalse(self.output.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

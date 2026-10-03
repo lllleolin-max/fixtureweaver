@@ -118,6 +118,30 @@ class DisjointSet:
 def _validate_plan(plan: dict) -> dict:
     if not isinstance(plan, dict):
         raise FixtureError("PLAN", "Plan must be an object")
+    def scalar_tree(value, depth=0):
+        if depth > 64:
+            raise FixtureError("PLAN", "Plan nesting exceeds 64 levels")
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise FixtureError("PLAN", "Plan object keys must be strings")
+                scalar_tree(key, depth + 1)
+                scalar_tree(item, depth + 1)
+        elif isinstance(value, list):
+            for item in value:
+                scalar_tree(item, depth + 1)
+        elif type(value) is int and not -(2 ** 63) <= value < 2 ** 63:
+            raise FixtureError("PLAN", "Integer must fit SQLite signed 64-bit storage")
+        elif type(value) is float and not math.isfinite(value):
+            raise FixtureError("PLAN", "REAL plan values must be finite")
+        elif isinstance(value, str):
+            try:
+                value.encode("utf-8")
+            except UnicodeError as error:
+                raise FixtureError("PLAN", "Plan strings must be valid UTF-8 scalar values") from error
+        elif value is not None and not isinstance(value, (str, int, float, bool, bytes)):
+            raise FixtureError("PLAN", "Unsupported plan value type", value_type=type(value).__name__)
+    scalar_tree(plan)
     unknown = set(plan) - {"seeds", "masks", "protect", "queries", "salt", "limits"}
     if unknown:
         raise FixtureError("PLAN", "Unknown plan fields", fields=sorted(unknown))
@@ -315,6 +339,8 @@ def _masks(db, tables, keys, retained, classes, protect, salt, limits):
         for members in groups.values():
             members.sort(key=lambda c: (c[0], repr(c[1]), c[2]))
             values = [cells[c] for c in members]
+            if any(type(value) is float and not math.isfinite(value) for value in values):
+                raise FixtureError("MASK_TYPE", "Nonfinite stored identifiers are unsupported", class_name=name)
             storage = {type(v) for v in values}
             if bytes in storage and len(storage) != 1:
                 raise FixtureError("MASK_TYPE", "A linked class mixes BLOB and scalar identifiers; separate or normalize the schema", class_name=name)

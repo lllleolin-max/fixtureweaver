@@ -1,0 +1,39 @@
+$ <history-temp>\env\Scripts\python.exe -m pip wheel <history-temp>\source --no-deps --wheel-dir <history-temp>\wheels
+Processing <user>\appdata\local\temp\fixtureweaver-history-tlj2l8ml\source
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: fixtureweaver
+  Building wheel for fixtureweaver (pyproject.toml): started
+  Building wheel for fixtureweaver (pyproject.toml): finished with status 'done'
+  Created wheel for fixtureweaver: filename=fixtureweaver-0.1.0-py3-none-any.whl size=12218 sha256=28ab12ff578dc160f9779473194a436ea685d6cb837998e1ff03cb4a9a8f5f4d
+  Stored in directory: <user>\AppData\Local\Temp\pip-ephem-wheel-cache-pc3plimh\wheels\39\38\7d\3e082ebed357c140165115ca38156ab5dd74e9d410b790e6e3
+Successfully built fixtureweaver
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: <history-temp>\env\Scripts\python.exe -m pip install --upgrade pip
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe -m pip install --no-deps <history-temp>\wheels\fixtureweaver-0.1.0-py3-none-any.whl
+Processing <user>\appdata\local\temp\fixtureweaver-history-tlj2l8ml\wheels\fixtureweaver-0.1.0-py3-none-any.whl
+Installing collected packages: fixtureweaver
+Successfully installed fixtureweaver-0.1.0
+
+[notice] A new release of pip is available: 25.3 -> 26.2.1
+[notice] To update, run: <history-temp>\env\Scripts\python.exe -m pip install --upgrade pip
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe -c import fixtureweaver,pathlib,json,hashlib; p=pathlib.Path(fixtureweaver.__file__).parent; print(json.dumps({f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(p.glob('*.py'))}))
+{"__init__.py": "bb56833ea35274affe16d70a7db18ffac6e986957ea021cd3eadd672a3dd9b79", "cli.py": "ef265161c59f95a0944ddb8164303a18ec836ee470cb46e280fb5d01f249bb3b", "engine.py": "d3406a72e5a4bf68a68985f0511483c9ed872e1500935fa13370c83c03315c9e"}
+
+exit=0
+
+$ <history-temp>\env\Scripts\python.exe <repo>\probes\protected_affinity_probe.py
+{"probe": "protected_affinity", "passed": true, "result": [[1, "1.0", "integer", "text"]]}
+
+exit=0
